@@ -1,0 +1,14 @@
+Package: sccm
+Title: Schwarz-Christoffel Conformal Mapping
+Version: 0.0.0.9000
+Authors@R: person("Peter", "DeWitt", email = "dewittpe@gmail.com", role = c("aut", "cre"))
+Description: Provides 
+Depends: R (>= 3.1.2)
+License: GPL-2
+Encoding: UTF-8
+LazyData: true
+LinkingTo: Rcpp
+Imports: Rcpp
+Suggests: knitr,
+    rmarkdown
+VignetteBuilder: knitr

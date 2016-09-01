@@ -11,8 +11,6 @@ double crossproduct(const vertex& origin, const vertex& A, const vertex& B) {
 std::vector<vertex> convex_hull_andrew_monotone(std::vector<vertex>& v) {
   int n = v.size(), k = 0;
 
-  Rcpp::Rcout << "n = " << n << std::endl;
-
   std::vector<vertex> hull(2 * n);
 
   sort(v.begin(), v.end());
@@ -37,28 +35,8 @@ std::vector<vertex> convex_hull_andrew_monotone(std::vector<vertex>& v) {
   return hull; 
 }
 
-//' Convex Hull
-//'
-//' return the convex hull for a set of (x, y) points
-//'
-//' @param x a numeric vector of x coordinates
-//' @param y a numeric vector of y coordinates
-//' 
-//' @return a matrix, the convex hull vertices listed in an anti-clockwise
-//' order.
-//'
-//' @examples
-//' x <- rnorm(200)
-//' y <- rnorm(200)
-//' 
-//' hull <- convex_hull(x, y)
-//' 
-//' plot(x, y)
-//' lines(hull[, 1], hull[, 2])
-//'
-//' @export
 // [[Rcpp::export]]
-Rcpp::NumericMatrix convex_hull(Rcpp::NumericVector x, Rcpp::NumericVector y) {
+Rcpp::NumericMatrix convex_hull_cpp(Rcpp::NumericVector x, Rcpp::NumericVector y) {
   std::vector<vertex> v;
 
   if (x.size() != y.size()) { 
@@ -66,17 +44,23 @@ Rcpp::NumericMatrix convex_hull(Rcpp::NumericVector x, Rcpp::NumericVector y) {
   }
 
   for (int i = 0; i < x.size(); ++i) {
-    v.push_back(vertex(x(i), y(i)));
+    v.push_back(vertex(x(i), y(i), i));
   }
 
   v = convex_hull_andrew_monotone(v);
 
   Rcpp::NumericMatrix rtn(v.size(), 2);
+  Rcpp::NumericVector idx(v.size());
 
   for (size_t i = 0; i < v.size(); ++i) { 
     rtn(i,0) = v[i].x;
     rtn(i,1) = v[i].y;
+    idx(i)   = v[i].id + 1;
   }
 
+  Rcpp::colnames(rtn) = Rcpp::CharacterVector::create("x", "y");
+  rtn.attr("indices") = idx;
+  rtn.attr("class")   = "sccm_ch";
+
   return rtn;
-}
+} 

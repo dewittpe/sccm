@@ -5,15 +5,15 @@
 
 using namespace Rcpp;
 
-// convex_hull
-Rcpp::NumericMatrix convex_hull(Rcpp::NumericVector x, Rcpp::NumericVector y);
-RcppExport SEXP sccm_convex_hull(SEXP xSEXP, SEXP ySEXP) {
+// convex_hull_cpp
+Rcpp::NumericMatrix convex_hull_cpp(Rcpp::NumericVector x, Rcpp::NumericVector y);
+RcppExport SEXP sccm_convex_hull_cpp(SEXP xSEXP, SEXP ySEXP) {
 BEGIN_RCPP
     Rcpp::RObject __result;
     Rcpp::RNGScope __rngScope;
     Rcpp::traits::input_parameter< Rcpp::NumericVector >::type x(xSEXP);
     Rcpp::traits::input_parameter< Rcpp::NumericVector >::type y(ySEXP);
-    __result = Rcpp::wrap(convex_hull(x, y));
+    __result = Rcpp::wrap(convex_hull_cpp(x, y));
     return __result;
 END_RCPP
 }

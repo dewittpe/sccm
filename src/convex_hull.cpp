@@ -37,7 +37,7 @@ std::vector<vertex> convex_hull_andrew_monotone(std::vector<vertex>& v) {
   return hull; 
 }
 
-//' convexHull
+//' Convex Hull
 //'
 //' return the convex hull for a set of (x, y) points
 //'
@@ -46,6 +46,15 @@ std::vector<vertex> convex_hull_andrew_monotone(std::vector<vertex>& v) {
 //' 
 //' @return a matrix, the convex hull vertices listed in an anti-clockwise
 //' order.
+//'
+//' @examples
+//' x <- rnorm(200)
+//' y <- rnorm(200)
+//' 
+//' hull <- convex_hull(x, y)
+//' 
+//' plot(x, y)
+//' lines(hull[, 1], hull[, 2])
 //'
 //' @export
 // [[Rcpp::export]]

@@ -1,4 +1,4 @@
-# sct
+# sccm: Schwarz-Christoffel Conformal Mapping
 
 Provide a conformal mapping of one 2D polygon to a rectangular region via the
 Schwarz-Christoffel theorem.

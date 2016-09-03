@@ -1,39 +1,5 @@
 #include <Rcpp.h>
-#include "structures.h"
-
-// 2D cross product.  Following the right-hand rule, an anti-clockwise turn from
-// A to B will have a positive value, a clockwise turn will have a negative
-// value, 0 for colinear points.
-double crossproduct(const vertex& origin, const vertex& A, const vertex& B) { 
-  return (A.x - origin.x) * (B.y - origin.y) - (A.y - origin.y) * (B.x - origin.x);
-}
-
-std::vector<vertex> convex_hull_andrew_monotone(std::vector<vertex>& v) {
-  int n = v.size(), k = 0;
-
-  std::vector<vertex> hull(2 * n);
-
-  sort(v.begin(), v.end());
-
-  // Lower Hull
-  for (int i = 0; i < n; ++i) { 
-    while (k >= 2 && crossproduct(hull[k-2], hull[k-1], v[i]) <= 0) {
-      --k;
-    }
-    hull[k++] = v[i];
-  }
-
-  // Upper Hull
-  for (int i = n - 2, t = k+1; i >= 0; --i) {
-    while (k >= t && crossproduct(hull[k - 2], hull[k - 1], v[i]) <= 0) {
-      --k;
-    }
-    hull[k++] = v[i];
-  }
-
-  hull.resize(k-1);
-  return hull; 
-}
+#include "sccm.h"
 
 // [[Rcpp::export]]
 Rcpp::NumericMatrix convex_hull_cpp(Rcpp::NumericVector x, Rcpp::NumericVector y) {
@@ -47,15 +13,15 @@ Rcpp::NumericMatrix convex_hull_cpp(Rcpp::NumericVector x, Rcpp::NumericVector y
     v.push_back(vertex(x(i), y(i), i));
   }
 
-  v = convex_hull_andrew_monotone(v);
+  convexhull ch(v);
 
-  Rcpp::NumericMatrix rtn(v.size(), 2);
-  Rcpp::NumericVector idx(v.size());
+  Rcpp::NumericMatrix rtn(ch.n, 2);
+  Rcpp::NumericVector idx(ch.n);
 
-  for (size_t i = 0; i < v.size(); ++i) { 
-    rtn(i,0) = v[i].x;
-    rtn(i,1) = v[i].y;
-    idx(i)   = v[i].id + 1;
+  for (size_t i = 0; i < ch.n; ++i) { 
+    rtn(i,0) = ch.hull[i].x;
+    rtn(i,1) = ch.hull[i].y;
+    idx(i)   = ch.hull[i].id + 1;
   }
 
   Rcpp::colnames(rtn) = Rcpp::CharacterVector::create("x", "y");

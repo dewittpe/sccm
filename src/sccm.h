@@ -20,6 +20,8 @@ struct convexhull {
   int n;                     // number of vertices
 
   convexhull(std::vector<vertex>& _v); 
+
+  int size() {return hull.size();}
 };
 
 

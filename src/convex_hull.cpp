@@ -15,10 +15,10 @@ Rcpp::NumericMatrix convex_hull_cpp(Rcpp::NumericVector x, Rcpp::NumericVector y
 
   convexhull ch(v);
 
-  Rcpp::NumericMatrix rtn(ch.n, 2);
-  Rcpp::NumericVector idx(ch.n);
+  Rcpp::NumericMatrix rtn(ch.size(), 2);
+  Rcpp::NumericVector idx(ch.size());
 
-  for (size_t i = 0; i < ch.n; ++i) { 
+  for (size_t i = 0; i < ch.size(); ++i) { 
     rtn(i,0) = ch.hull[i].x;
     rtn(i,1) = ch.hull[i].y;
     idx(i)   = ch.hull[i].id + 1;

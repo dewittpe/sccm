@@ -10,6 +10,12 @@ struct vertex {
   double x, y;
   int id;
 
+  double norm() {return sqrt(pow(x, 2) + pow(y, 2));}
+
+  vertex operator -(const vertex& v) const {
+    return vertex(x - v.x, y - v.y, -1);
+  }
+
   bool operator <(const vertex &v) const {
     return x < v.x || (x == v.x && y < v.y);
   }
@@ -31,5 +37,6 @@ struct convexhull {
 double crossproduct(const vertex& origin, const vertex& A, const vertex& B);
 double dotproduct(const vertex& origin, const vertex& A, const vertex& B);
 double norm(const vertex& origin, const vertex& A);
+double interior_angle(const vertex& origin, const vertex& A, const vertex& B);
 
 #endif

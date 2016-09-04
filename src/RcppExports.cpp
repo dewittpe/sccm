@@ -6,7 +6,7 @@
 using namespace Rcpp;
 
 // convex_hull_cpp
-Rcpp::NumericMatrix convex_hull_cpp(Rcpp::NumericVector x, Rcpp::NumericVector y);
+Rcpp::List convex_hull_cpp(Rcpp::NumericVector x, Rcpp::NumericVector y);
 RcppExport SEXP sccm_convex_hull_cpp(SEXP xSEXP, SEXP ySEXP) {
 BEGIN_RCPP
     Rcpp::RObject __result;

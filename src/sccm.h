@@ -17,7 +17,7 @@ struct vertex {
 
 struct convexhull {
   std::vector<vertex> hull;  // vertices of the convex hull
-  int n;                     // number of vertices
+  std::vector<double> beta;  // interior angles
 
   convexhull(std::vector<vertex>& _v); 
 
@@ -29,5 +29,7 @@ struct convexhull {
 // A to B will have a positive value, a clockwise turn will have a negative
 // value, 0 for colinear points.
 double crossproduct(const vertex& origin, const vertex& A, const vertex& B);
+double dotproduct(const vertex& origin, const vertex& A, const vertex& B);
+double norm(const vertex& origin, const vertex& A);
 
 #endif

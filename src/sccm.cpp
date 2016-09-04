@@ -3,8 +3,7 @@
 
 convexhull::convexhull(std::vector<vertex>& _v) {
 
-  int k = 0;
-  n = _v.size();
+  int k = 0, n = _v.size();
 
   hull.resize(2*n);
 
@@ -28,10 +27,17 @@ convexhull::convexhull(std::vector<vertex>& _v) {
   }
 
   hull.resize(k-1); 
-  n = hull.size(); 
 }
 
 
 double crossproduct(const vertex& origin, const vertex& A, const vertex& B) { 
   return (A.x - origin.x) * (B.y - origin.y) - (A.y - origin.y) * (B.x - origin.x);
+}
+
+double dotproduct(const vertex& origin, const vertex& A, const vertex& B) {
+  return (A.x - origin.x) * (B.x - origin.x) + (A.y - origin.y) * (B.y - origin.y);
+}
+
+double norm(const vertex& origin, const vertex& A) {
+  return sqrt(pow((A.x - origin.x),2) + pow((A.y - origin.y), 2));
 }

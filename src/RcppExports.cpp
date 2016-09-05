@@ -17,3 +17,15 @@ BEGIN_RCPP
     return __result;
 END_RCPP
 }
+// polygon_cpp
+Rcpp::List polygon_cpp(Rcpp::NumericVector x, Rcpp::NumericVector y);
+RcppExport SEXP sccm_polygon_cpp(SEXP xSEXP, SEXP ySEXP) {
+BEGIN_RCPP
+    Rcpp::RObject __result;
+    Rcpp::RNGScope __rngScope;
+    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type x(xSEXP);
+    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type y(ySEXP);
+    __result = Rcpp::wrap(polygon_cpp(x, y));
+    return __result;
+END_RCPP
+}

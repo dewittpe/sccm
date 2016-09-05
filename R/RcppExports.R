@@ -5,3 +5,7 @@ convex_hull_cpp <- function(x, y) {
     .Call('sccm_convex_hull_cpp', PACKAGE = 'sccm', x, y)
 }
 
+polygon_cpp <- function(x, y) {
+    .Call('sccm_polygon_cpp', PACKAGE = 'sccm', x, y)
+}
+

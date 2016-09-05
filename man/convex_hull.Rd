@@ -14,10 +14,7 @@ can be coerced to a matrix via \code{as.matrix}.}
 vector}
 }
 \value{
-a matrix with two columns, the first column is the absessea and the
-second colum the ordnate for the vertices of the convex hull.  The
-\code{"indices"} attribute provides the row index of input matrix found to be
-vertices of the convex hull.
+a list
 }
 \description{
 return the convex hull for a set of (x, y) points

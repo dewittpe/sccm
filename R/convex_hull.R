@@ -7,10 +7,7 @@
 #' @param y a numeric vector of y coordinates, only needed if x is a numeric
 #' vector
 #' 
-#' @return a matrix with two columns, the first column is the absessea and the
-#' second colum the ordnate for the vertices of the convex hull.  The
-#' \code{"indices"} attribute provides the row index of input matrix found to be
-#' vertices of the convex hull.
+#' @return a list
 #'
 #' @examples
 #' ## Example 1

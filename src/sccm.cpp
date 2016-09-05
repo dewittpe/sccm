@@ -29,13 +29,13 @@ convexhull::convexhull(std::vector<vertex>& _v) {
   hull.resize(k-1); 
   n = hull.size();
 
-  // interior angles
+  // angles
   beta.resize(n); 
-  beta[0]     = interior_angle(hull[n - 1], hull[0], hull[1]);
-  beta[n - 1] = interior_angle(hull[n - 2], hull[n - 1], hull[0]); 
+  beta[0]     = exterior_angle(hull[n - 1], hull[0], hull[1]);
+  beta[n - 1] = exterior_angle(hull[n - 2], hull[n - 1], hull[0]); 
 
   for (int i = 1; i < n - 1; ++i) { 
-    beta[i] = interior_angle(hull[i - 1], hull[i], hull[i + 1]);
+    beta[i] = exterior_angle(hull[i - 1], hull[i], hull[i + 1]);
   }
 
 
@@ -50,6 +50,6 @@ double dotproduct(const vertex& A, const vertex& B) {
   return (A.x * B.x) + (A.y * B.y);
 }
 
-double interior_angle(const vertex& origin, const vertex& A, const vertex& B) {
-  return 4.0 * atan(1.0) - acos(dotproduct(A - origin, B - A) / ((A - origin).norm() * (B - A).norm()));
+double exterior_angle(const vertex& origin, const vertex& A, const vertex& B) {
+  return acos(dotproduct(A - origin, B - A) / ((A - origin).norm() * (B - A).norm()));
 }

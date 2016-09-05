@@ -23,7 +23,7 @@ struct vertex {
 
 struct convexhull {
   std::vector<vertex> hull;  // vertices of the convex hull
-  std::vector<double> beta;  // interior angles
+  std::vector<double> beta;  // exterior angles
 
   convexhull(std::vector<vertex>& _v); 
 
@@ -37,6 +37,6 @@ struct convexhull {
 double crossproduct(const vertex& origin, const vertex& A, const vertex& B);
 double dotproduct(const vertex& origin, const vertex& A, const vertex& B);
 double norm(const vertex& origin, const vertex& A);
-double interior_angle(const vertex& origin, const vertex& A, const vertex& B);
+double exterior_angle(const vertex& origin, const vertex& A, const vertex& B);
 
 #endif

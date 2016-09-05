@@ -1,6 +1,20 @@
 #include <Rcpp.h>
 #include "sccm.h"
 
+polygon::polygon(std::vector<vertex>& _v){
+  v = _v;
+  int n = v.size();
+
+  // angles
+  beta.resize(n); 
+  beta[0]     = exterior_angle(v[n - 1], v[0], v[1]);
+  beta[n - 1] = exterior_angle(v[n - 2], v[n - 1], v[0]); 
+
+  for (int i = 1; i < n - 1; ++i) { 
+    beta[i] = exterior_angle(v[i - 1], v[i], v[i + 1]);
+  } 
+}
+
 convexhull::convexhull(std::vector<vertex>& _v) {
 
   int k = 0, n = _v.size();
@@ -36,9 +50,7 @@ convexhull::convexhull(std::vector<vertex>& _v) {
 
   for (int i = 1; i < n - 1; ++i) { 
     beta[i] = exterior_angle(hull[i - 1], hull[i], hull[i + 1]);
-  }
-
-
+  } 
 }
 
 

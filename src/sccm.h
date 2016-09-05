@@ -30,6 +30,15 @@ struct convexhull {
   int size() {return hull.size();}
 };
 
+struct polygon {
+  std::vector<vertex> v;  // vertices of the convex hull
+  std::vector<double> beta;    // exterior angles
+
+  polygon(std::vector<vertex>& _v); 
+
+  int size() {return v.size();}
+};
+
 
 // 2D cross product.  Following the right-hand rule, an anti-clockwise turn from
 // A to B will have a positive value, a clockwise turn will have a negative

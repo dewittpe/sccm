@@ -19,7 +19,6 @@ p2d <- function(.data, pg = sccm::convex_hull(.data), ...) {
 }
 
 #' @export
-#' @method data.frame
 p2d.data.frame <- function(.data, pg = sccm::convex_hull(.data), ...) { 
   if (ncol(.data) != 2) { 
     stop("expecting a two column data.frame")

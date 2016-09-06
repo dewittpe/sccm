@@ -58,10 +58,14 @@ double crossproduct(const vertex& origin, const vertex& A, const vertex& B) {
   return (A.x - origin.x) * (B.y - origin.y) - (A.y - origin.y) * (B.x - origin.x);
 }
 
+double crossproduct(const vertex& A, const vertex& B) { 
+  return A.x * B.y - A.y * B.x;
+}
+
 double dotproduct(const vertex& A, const vertex& B) {
   return (A.x * B.x) + (A.y * B.y);
 }
 
 double exterior_angle(const vertex& origin, const vertex& A, const vertex& B) {
-  return acos(dotproduct(A - origin, B - A) / ((A - origin).norm() * (B - A).norm()));
+ return atan2(crossproduct(A - origin, B - A), dotproduct(A - origin, B - A));
 }

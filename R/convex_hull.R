@@ -53,16 +53,22 @@ convex_hull <- function(x, y) {
 #' @export
 convex_hull.default <- function(x, y) { 
   x <- as.matrix(x)
-  .Call('sccm_convex_hull_cpp', PACKAGE = 'sccm', x[, 1], x[, 2])
+  out <- .Call('sccm_convex_hull_cpp', PACKAGE = 'sccm', x[, 1], x[, 2])
+  class(out) <- c("sccm_ch", class(out))
+  out
 }
 
 #' @export
 convex_hull.numeric <- function(x, y) { 
-  .Call('sccm_convex_hull_cpp', PACKAGE = 'sccm', x, y)
+  out <- .Call('sccm_convex_hull_cpp', PACKAGE = 'sccm', x, y)
+  class(out) <- c("sccm_ch", class(out))
+  out
 }
 
 #' @export
 convex_hull.matrix <- function(x, y) { 
-  .Call('sccm_convex_hull_cpp', PACKAGE = 'sccm', x[, 1], x[, 2])
+  out <- .Call('sccm_convex_hull_cpp', PACKAGE = 'sccm', x[, 1], x[, 2])
+  class(out) <- c("sccm_ch", class(out))
+  out
 }
 

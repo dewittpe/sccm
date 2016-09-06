@@ -18,5 +18,7 @@ install: $(PKG_NAME)_$(PKG_VERSION).tar.gz
 	R CMD INSTALL $(PKG_NAME)_$(PKG_VERSION).tar.gz
 
 clean:
+	/bin/rm -f  src/*.o
+	/bin/rm -f  src/*.so
 	/bin/rm -f  $(PKG_NAME)_*.tar.gz
 	/bin/rm -rf $(PKG_NAME).Rcheck

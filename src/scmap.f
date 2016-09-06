@@ -1,4 +1,22 @@
-      subroutine predict(n,c,z,wc,w,betam,nptsq,qwork,zz,npred,ww)
+      subroutine scmap(n,w,wc,betam,nptsq,tol,errest,c,z,qwork)
+      implicit complex*16(c,w,z), real*8(a-b,d-h,o-v,x-y)
+      dimension z(1),w(1),betam(1),qwork(1)
+c
+c compute nodes and weights for parameter problem:
+      call qinit(n,betam,nptsq,qwork)
+c
+c solve parameter problem:
+      iprint = 0
+      iguess = 0
+      tol = 10.**(-nptsq-1)
+      call scsolv(iprint,iguess,tol,errest,n,c,z,
+     &  wc,w,betam,nptsq,qwork)
+
+      return
+      end 
+
+
+      subroutine d2p(n,c,z,wc,w,betam,nptsq,qwork,zz,npred,ww)
       implicit complex*16(c,w,z), real*8(a-b,d-h,o-v,x-y)
       dimension z(1),w(1),betam(1),qwork(1),zz(1),ww(1)
 c
@@ -12,7 +30,7 @@ c
       end
 
 
-      subroutine predictr(n,c,z,wc,w,betam,nptsq,qwork,ww,npred,zz)
+      subroutine p2d(n,c,z,wc,w,betam,nptsq,qwork,ww,npred,zz)
       implicit complex*16(c,w,z), real*8(a-b,d-h,o-v,x-y)
       dimension z(1),w(1),betam(1),qwork(1),zz(1),ww(1)
 c

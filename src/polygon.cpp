@@ -29,8 +29,7 @@ Rcpp::List polygon_cpp(Rcpp::NumericVector x, Rcpp::NumericVector y) {
   Rcpp::colnames(vertices) = Rcpp::CharacterVector::create("x", "y");
 
   return Rcpp::List::create(
-      Rcpp::Named("polygon") = vertices, 
-      Rcpp::Named("beta") = angle, 
-      Rcpp::Named("indices") = idx
+      Rcpp::Named("vertices") = vertices, 
+      Rcpp::Named("beta") = angle
       );
 } 

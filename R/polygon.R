@@ -1,15 +1,38 @@
 #' Polygon
 #'
-#' return the polygon and external angles for a set of (x, y) points
+#' Return the polygon and external angles for a set of (x, y) points
+#'
+#' Providing a set of vertices, \code{polygon} provides the angles between
+#' edges.
+#'
+#' It is expected that the vertices are provided in an anti-clockwise order.
+#' The anti-clockwise order is needed when constructing the conformal mappings.
+#'
+#' @seealso \code{\link{convex_hull}} \code{\link{p2d}} \code{\link{d2p}}
+#' \code{\link{p2p}}
 #'
 #' @param x a numeric vector of x coordinates, a n by 2 matrix, or anything that
 #' can be coerced to a matrix via \code{as.matrix}.
 #' @param y a numeric vector of y coordinates, only needed if x is a numeric
 #' vector
 #' 
-#' @return A list
+#' @return A \code{sccm_pg} object.  This is a \code{list} with the following
+#' elements:
+#' \describe{
+#' \item{vertices}{a n by 2 matrix of the vertices defining the convex
+#' hull.}
+#' \item{beta}{a numeric vector of the exterior angles for each of the
+#' vertices.}
+#' }
 #'
-#' 
+#' @examples
+#' xvec <- c(-1, -0.3, 1.2, 0.45, -2)
+#' yvec <- c(-1, 1.2, -0.2, 1.8, 0.3)
+#' pg <- polygon(xvec, yvec)
+#' pg
+#' pg$beta
+#' plot(pg)
+#'
 #' @export
 polygon <- function(x, y) { 
   UseMethod("polygon")
@@ -36,4 +59,16 @@ polygon.matrix <- function(x, y) {
   class(out) <- c("sccm_pg", class(out))
   out
 }
+
+#' @export
+print.sccm_pg <- function(x, ...) {
+  cat("A polygon with", nrow(x$vertices), "vertices.\n")
+  print(x$vertices)
+}
+
+#' @export
+plot.sccm_pg <- function(x, ...) { 
+  graphics::plot(x$vertices, xlab = "", ylab = "", col = "red", pch = 3, ...)
+  graphics::lines(x$vertices[c(seq(1L, nrow(x$vertices), by = 1), 1L), ] , col = "red")
+} 
 

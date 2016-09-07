@@ -26,10 +26,17 @@ Rcpp::List convex_hull_cpp(Rcpp::NumericVector x, Rcpp::NumericVector y) {
     idx(i)   = ch.hull[i].id + 1;
   }
 
+  Rcpp::NumericMatrix data(x.size(), 2);
+  for (size_t i = 0; i < x.size(); ++i) { 
+    data(i, 0) = x(i);
+    data(i, 1) = y(i);
+  } 
+
   Rcpp::colnames(h) = Rcpp::CharacterVector::create("x", "y");
 
   return Rcpp::List::create(
-      Rcpp::Named("hull") = h, 
+      Rcpp::Named("vertices") = h, 
+      Rcpp::Named("data") = data, 
       Rcpp::Named("beta") = angle, 
       Rcpp::Named("indices") = idx
       );

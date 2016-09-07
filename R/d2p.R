@@ -1,11 +1,10 @@
-#' Polygon to Disk
+#' Disk to Polygon
 #'
-#' Map the data within a polygon to the unit disk via Schwarz-Christoffel
+#' Map the data within the unit disk to a polygon via Schwarz-Christoffel
 #' conformal mapping.
 #'
-#' @param .data the data set to map to the disk
-#' @param pg the polygon containing the data, the default is the convex
-#' hull about \code{.data}.
+#' @param .data the (x, y) corrdnates of the data within the unit disk.
+#' @param pg the polygon to map the data to.
 #' @param ... additional arguments passed to \code{scmap}
 #'
 #' @seealso \code{scmap}
@@ -14,12 +13,12 @@
 #' @return a list
 #' 
 #' @export
-p2d <- function(.data, pg = sccm::convex_hull(.data), ...) {
-  UseMethod("p2d")
+d2p <- function(.data, pg = sccm::polygon(x = c(-1, 1, 1, -1), y = c(-1, -1, 1, 1)), ...) { 
+  UseMethod("d2p")
 }
 
 #' @export
-p2d.data.frame <- function(.data, pg = sccm::convex_hull(.data), ...) { 
+d2p.data.frame <- function(.data, pg = sccm::polygon(x = c(-1, 1, 1, -1), y = c(-1, -1, 1, 1)), ...) { 
   if (ncol(.data) != 2) { 
     stop("expecting a two column data.frame")
   }
@@ -29,7 +28,7 @@ p2d.data.frame <- function(.data, pg = sccm::convex_hull(.data), ...) {
 
   mapping <- scmap(pg, ...)
 
-  disk <- .C("p2d_", 
+  disk <- .C("d2p_", 
              n     = as.integer(mapping$n),
              c     = as.double(mapping$c),
              z     = as.double(mapping$z),
@@ -38,35 +37,32 @@ p2d.data.frame <- function(.data, pg = sccm::convex_hull(.data), ...) {
              betam = as.double(mapping$betam),
              nptsq = as.integer(mapping$nptsq),
              qwork = as.double(mapping$qwork),
-             ww    = as.double(x),
+             zz    = as.double(x),
              npred = as.integer(npred),
-             zz    = double(2 * npred))
+             ww    = double(2 * npred))
 
-  disk <- matrix(disk$zz, byrow = TRUE, ncol = 2)
+  plygn <- matrix(disk$ww, byrow = TRUE, ncol = 2)
 
-  out <- list(disk = disk,
+  out <- list(mapped_data = plygn, 
               polygon = pg, 
               data = .data,
               mapping = mapping)
 
-  class(out) <- c("sccm_p2d", class(out))
+  class(out) <- c("sccm_d2p", class(out))
   out 
 }
 
 #' @export
-plot.sccm_p2d <- function(x, ...) { 
+plot.sccm_d2p <- function(x, ...) { 
 
   par(mfrow = c(1, 2))
 
-  plot(x$data)
-  points(x$polygon$hull, col = "red", pch = 3)
-  lines(x$polygon$hull[c(1:nrow(x$polygon$hull), 1), ], col = "red", pch = 3)
-
-  plot(x$disk, asp = 1, xlim = c(-1, 1))
-  points(x$disk[x$polygon$indices, ], col = "red", pch = 3)
-
+  plot(x$data, asp = 1, xlim = c(-1, 1)) 
   # draw the circle
   theta <- seq(0, 2 * pi, length = 200) 
   lines(x = cos(theta), y = sin(theta))
 
+  plot(x$mapped_data)
+  points(x$polygon$polygon, col = "red", pch = 3)
+  lines(x$polygon$polygon[c(1:nrow(x$polygon$polygon), 1), ], col = "red", pch = 3) 
 }

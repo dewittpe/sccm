@@ -23,6 +23,26 @@
 #' \item{d2p}{the Schwarz-Christoffel mapping between the unit disk and polygon2.}
 #' }
 #' 
+#' @examples
+#' set.seed(42)
+#' n <- 2500L
+#' dat <- data.frame(x = 1 + runif(n)) 
+#' dat$y <- log(dat$x) + rnorm(n, sd = 0.2)
+#' ch <- sccm::convex_hull(dat)
+#' plot(ch)
+#' 
+#' trans <- sccm::p2p(dat)
+#' plot(trans)
+#' 
+#' star <- 
+#'    rbind(sccm::polar2cartesian(r = 1.0, theta = seq(0, 1.6, by = 0.4) * pi),
+#'          sccm::polar2cartesian(r = 0.6, theta = seq(0.2, 1.8, by = 0.4) * pi))
+#' star <- star[rep(1:5, each = 2) + rep(c(0, 5), times = 5), ]
+#' 
+#' trans <- sccm::p2p(dat, pg2 = sccm::polygon(star))
+#' plot(trans)
+#' 
+#'
 #' @export
 p2p <- function(.data, 
                 pg1 = sccm::convex_hull(.data), 
@@ -80,5 +100,34 @@ p2p.matrix <- function(.data,
 
 #' @export
 plot.sccm_p2p <- function(x, ...) { 
-  stop("to do") 
+  graphics::par(mfrow = c(1, 3))
+   
+  # orig
+  graphics::plot(x$data, 
+                 main = "Original", 
+                 xlab = "", ylab = "", 
+                 ...)
+  graphics::points(x$pg1$vertices, col = "red", pch = 3)
+  graphics::lines(x$pg1$vertices[c(1:nrow(x$pg1$vertices), 1), ], col = "red", pch = 3)
+
+  # the disk
+  graphics::plot(x$disked, asp = 1, xlim = c(-1, 1), main = "Disk", xlab = "", ylab = "", ...)
+  graphics::points(x$disked[x$pg1$indices, ], col = "red", pch = 3)
+
+  # draw the circle
+  theta <- seq(0, 2 * pi, length = 200) 
+  graphics::lines(x = cos(theta), y = sin(theta))
+
+  # the mapped
+  graphics::plot(x$mapped, 
+                 asp = 1, 
+                 main = "Mapped",
+                 xlim = range(x$pg2$vertices[, 1]),
+                 ylim = range(x$pg2$vertices[, 2]),
+                 xlab = "", ylab = "", 
+                 ...)
+  graphics::points(x$pg2$vertices, col = "red", pch = 3)
+  graphics::lines(x$pg2$vertices[c(1:nrow(x$pg2$vertices), 1), ], col = "red", pch = 3) 
+
+  graphics::par(mfrow = c(1, 1)) 
 }

@@ -15,13 +15,19 @@ hull about \code{.data}.}
 \item{...}{additional arguments passed to \code{scmap}}
 }
 \value{
-a list
+a \code{sccm_p2d} object, a list with the following elements:
+\describe{
+\item{mapped}{a n by 2 matrix with the (x, y) coordinates of the mapped data.}
+\item{polygon}{The polygon the .data was contained in}
+\item{data}{The original data}
+\item{mapping}{the Schwarz-Christoffel mapping used.}
+}
 }
 \description{
 Map the data within a polygon to the unit disk via Schwarz-Christoffel
 conformal mapping.
 }
 \seealso{
-\code{scmap}
+\code{\link{scmap}} \code{\link{d2p}} \code{\link{p2p}}
 }
 

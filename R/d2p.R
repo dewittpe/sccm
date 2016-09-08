@@ -161,4 +161,6 @@ plot.sccm_d2p <- function(x, ...) {
                  ...)
   graphics::points(x$polygon$vertices, col = "red", pch = 3)
   graphics::lines(x$polygon$vertices[c(1:nrow(x$polygon$vertices), 1), ], col = "red", pch = 3) 
+
+  graphics::par(mfrow = c(1, 1)) 
 }

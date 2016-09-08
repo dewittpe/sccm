@@ -15,7 +15,6 @@ LazyData: true
 LinkingTo: Rcpp (>= 0.11.0),
     RcppArmadillo
 Imports:
-    ggplot2,
     Rcpp
 Suggests:
     knitr,

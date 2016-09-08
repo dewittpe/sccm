@@ -13,6 +13,9 @@ all: $(PKG_NAME)_$(PKG_VERSION).tar.gz
 data/CircleLimitI.rda: data-raw/mcescher.R
 	Rscript data-raw/mcescher.R
 
+data/HexagonalFish.rda: data-raw/hexagonal-fish.R
+	Rscript data-raw/hexagonal-fish.R
+
 $(PKG_NAME)_$(PKG_VERSION).tar.gz: DESCRIPTION $(RFILES) $(SRC) $(DATA)
 	R -e "devtools::document()"
 	R CMD build .

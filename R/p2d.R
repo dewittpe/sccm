@@ -100,15 +100,21 @@ plot.sccm_p2d <- function(x, ...) {
 
   graphics::par(mfrow = c(1, 2))
 
-  graphics::plot(x$data)
-  graphics::points(x$polygon$hull, col = "red", pch = 3)
-  graphics::lines(x$polygon$hull[c(1:nrow(x$polygon$hull), 1), ], col = "red", pch = 3)
+  graphics::plot(x$data, 
+                 main = "Original", 
+                 xlab = "", ylab = "", 
+                 ...)
+  graphics::points(x$polygon$vertices, col = "red", pch = 3)
+  graphics::lines(x$polygon$vertices[c(1:nrow(x$polygon$vertices), 1), ], col = "red", pch = 3)
 
-  graphics::plot(x$disk, asp = 1, xlim = c(-1, 1))
-  graphics::points(x$disk[x$polygon$indices, ], col = "red", pch = 3)
+
+  # the disk
+  graphics::plot(x$mapped, asp = 1, xlim = c(-1, 1), main = "Mapped", xlab = "", ylab = "", ...)
+  graphics::points(x$mapped[x$polygon$indices, ], col = "red", pch = 3)
 
   # draw the circle
   theta <- seq(0, 2 * pi, length = 200) 
   graphics::lines(x = cos(theta), y = sin(theta))
 
+  graphics::par(mfrow = c(1, 1)) 
 }

@@ -28,10 +28,26 @@
 #' @examples
 #' xvec <- c(-1, -0.3, 1.2, 0.45, -2)
 #' yvec <- c(-1, 1.2, -0.2, 1.8, 0.3)
-#' pg <- polygon(xvec, yvec)
+#' pg <- sccm::polygon(xvec, yvec)
 #' pg
 #' pg$beta
 #' plot(pg)
+#'
+#' # Build a star
+#' # the following builds the set of vertices, but not in a anti-clockwise
+#' # order.  This is visible in the plot as the result is an irregular polygon.
+#' 
+#' star <- 
+#'   rbind(sccm::polar2cartesian(r = 1.0, theta = seq(0, 1.6, by = 0.4) * pi),
+#'         sccm::polar2cartesian(r = 0.6, theta = seq(0.2, 1.8, by = 0.4) * pi))
+#' 
+#' plot(sccm::polygon(star))
+#' 
+#' # reorder the vertices 
+#' star <- star[rep(1:5, each = 2) + rep(c(0, 5), times = 5), ]
+#' plot(sccm::polygon(star))
+#' 
+#' @seealso \code{\link{polar2cartesian}} \code{link{convex_hull}}
 #'
 #' @export
 polygon <- function(x, y) { 

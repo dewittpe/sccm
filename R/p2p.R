@@ -41,7 +41,29 @@ p2p.data.frame <- function(.data,
                            ...) {
 
   p2dmap <- p2d(.data, pg = pg1, ...)
-  d2pmap <- d2p(.data = as.data.frame(p2dmap$disk), pg = pg2, ...)
+  d2pmap <- d2p(.data = p2dmap$mapped, pg = pg2, ...)
+
+  out <- list(mapped = d2pmap$mapped, 
+              disked = p2dmap$mapped,
+              data   = .data,
+              pg1    = pg1,
+              pg2    = pg2,
+              p2d    = p2dmap$mapping,
+              d2p    = d2pmap$mapping)
+
+  class(out) <- c("sccm_p2p", class(out))
+  out 
+}
+
+#' @export
+p2p.matrix <- function(.data, 
+                       pg1 = sccm::convex_hull(.data), 
+                       pg2 = sccm::polygon(x = c(-1, 1, 1, -1), 
+                                           y = c(-1, -1, 1, 1)),
+                       ...) {
+
+  p2dmap <- p2d(.data, pg = pg1, ...)
+  d2pmap <- d2p(.data = p2dmap$mapped, pg = pg2, ...)
 
 
   out <- list(mapped = d2pmap$mapped, 

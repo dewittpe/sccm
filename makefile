@@ -13,7 +13,7 @@ all: $(PKG_NAME)_$(PKG_VERSION).tar.gz
 data/CircleLimitI.rda: data-raw/mcescher.R
 	Rscript data-raw/mcescher.R
 
-$(PKG_NAME)_$(PKG_VERSION).tar.gz: $(RFILES) $(SRC) $(DATA)
+$(PKG_NAME)_$(PKG_VERSION).tar.gz: DESCRIPTION $(RFILES) $(SRC) $(DATA)
 	R -e "devtools::document()"
 	R CMD build .
 

@@ -61,19 +61,54 @@ p2d.data.frame <- function(.data, pg = sccm::convex_hull(.data), ...) {
 }
 
 #' @export
+p2d.matrix <- function(.data, pg = sccm::convex_hull(.data), ...) { 
+  if (ncol(.data) != 2) { 
+    stop("expecting a two column matrix")
+  }
+
+  x <- as.vector(t(.data))
+  npred <- nrow(.data)
+
+  mapping <- scmap(pg, ...)
+
+  disk <- .C("p2d_", 
+             n     = as.integer(mapping$n),
+             c     = as.double(mapping$c),
+             z     = as.double(mapping$z),
+             wc    = as.double(mapping$wc),
+             w     = as.double(mapping$w),
+             betam = as.double(mapping$betam),
+             nptsq = as.integer(mapping$nptsq),
+             qwork = as.double(mapping$qwork),
+             ww    = as.double(x),
+             npred = as.integer(npred),
+             zz    = double(2 * npred))
+
+  disk <- matrix(disk$zz, byrow = TRUE, ncol = 2)
+
+  out <- list(mapped = disk,
+              polygon = pg, 
+              data = .data,
+              mapping = mapping)
+
+  class(out) <- c("sccm_p2d", class(out))
+  out 
+}
+
+#' @export
 plot.sccm_p2d <- function(x, ...) { 
 
-  par(mfrow = c(1, 2))
+  graphics::par(mfrow = c(1, 2))
 
-  plot(x$data)
-  points(x$polygon$hull, col = "red", pch = 3)
-  lines(x$polygon$hull[c(1:nrow(x$polygon$hull), 1), ], col = "red", pch = 3)
+  graphics::plot(x$data)
+  graphics::points(x$polygon$hull, col = "red", pch = 3)
+  graphics::lines(x$polygon$hull[c(1:nrow(x$polygon$hull), 1), ], col = "red", pch = 3)
 
-  plot(x$disk, asp = 1, xlim = c(-1, 1))
-  points(x$disk[x$polygon$indices, ], col = "red", pch = 3)
+  graphics::plot(x$disk, asp = 1, xlim = c(-1, 1))
+  graphics::points(x$disk[x$polygon$indices, ], col = "red", pch = 3)
 
   # draw the circle
   theta <- seq(0, 2 * pi, length = 200) 
-  lines(x = cos(theta), y = sin(theta))
+  graphics::lines(x = cos(theta), y = sin(theta))
 
 }

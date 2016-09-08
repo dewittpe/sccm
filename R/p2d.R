@@ -8,10 +8,16 @@
 #' hull about \code{.data}.
 #' @param ... additional arguments passed to \code{scmap}
 #'
-#' @seealso \code{scmap}
+#' @seealso \code{\link{scmap}} \code{\link{d2p}} \code{\link{p2p}}
 #'
 #' 
-#' @return a list
+#' @return a \code{sccm_p2d} object, a list with the following elements:
+#' \describe{
+#' \item{mapped}{a n by 2 matrix with the (x, y) coordinates of the mapped data.}
+#' \item{polygon}{The polygon the .data was contained in}
+#' \item{data}{The original data}
+#' \item{mapping}{the Schwarz-Christoffel mapping used.}
+#' }
 #' 
 #' @export
 p2d <- function(.data, pg = sccm::convex_hull(.data), ...) {
@@ -19,6 +25,7 @@ p2d <- function(.data, pg = sccm::convex_hull(.data), ...) {
 }
 
 #' @export
+#' @method p2d data.frame
 p2d.data.frame <- function(.data, pg = sccm::convex_hull(.data), ...) { 
   if (ncol(.data) != 2) { 
     stop("expecting a two column data.frame")
@@ -44,7 +51,7 @@ p2d.data.frame <- function(.data, pg = sccm::convex_hull(.data), ...) {
 
   disk <- matrix(disk$zz, byrow = TRUE, ncol = 2)
 
-  out <- list(disk = disk,
+  out <- list(mapped = disk,
               polygon = pg, 
               data = .data,
               mapping = mapping)

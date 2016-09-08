@@ -18,9 +18,9 @@ scmap <- function(x, wc, nptsq = 12) {
 }
 
 #' @export
-scmap.sccm_ch <- function(x, wc = colMeans(x$hull), nptsq = 12) { 
-  n <- nrow(x$hull) # number of vertices
-  w <- as.vector(t(x$hull)) # vertices as a vector (x1, y1, x2, y2, ...)
+scmap.sccm_ch <- function(x, wc = colMeans(x$vertices), nptsq = 12) { 
+  n <- nrow(x$vertices) # number of vertices
+  w <- as.vector(t(x$vertices)) # vertices as a vector (x1, y1, x2, y2, ...)
 
   .C("scmap_",
      n      = as.integer(n),
@@ -36,9 +36,9 @@ scmap.sccm_ch <- function(x, wc = colMeans(x$hull), nptsq = 12) {
 }
 
 #' @export
-scmap.sccm_pg <- function(x, wc = colMeans(x$polygon), nptsq = 12) { 
-  n <- nrow(x$polygon) # number of vertices
-  w <- as.vector(t(x$polygon)) # vertices as a vector (x1, y1, x2, y2, ...)
+scmap.sccm_pg <- function(x, wc = colMeans(x$vertices), nptsq = 12) { 
+  n <- nrow(x$vertices) # number of vertices
+  w <- as.vector(t(x$vertices)) # vertices as a vector (x1, y1, x2, y2, ...)
 
   .C("scmap_",
      n      = as.integer(n),

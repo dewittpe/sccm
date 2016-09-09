@@ -1,7 +1,7 @@
 #include <Rcpp.h>
 #include "sccm.h"
 
-polygon::polygon(std::vector<vertex>& _v){
+polygon::polygon(std::vector<point>& _v){
   v = _v;
   int n = v.size();
 
@@ -15,7 +15,7 @@ polygon::polygon(std::vector<vertex>& _v){
   } 
 }
 
-convexhull::convexhull(std::vector<vertex>& _v) {
+convexhull::convexhull(std::vector<point>& _v) {
 
   int k = 0, n = _v.size();
 
@@ -54,18 +54,18 @@ convexhull::convexhull(std::vector<vertex>& _v) {
 }
 
 
-double crossproduct(const vertex& origin, const vertex& A, const vertex& B) { 
+double crossproduct(const point& origin, const point& A, const point& B) { 
   return (A.x - origin.x) * (B.y - origin.y) - (A.y - origin.y) * (B.x - origin.x);
 }
 
-double crossproduct(const vertex& A, const vertex& B) { 
+double crossproduct(const point& A, const point& B) { 
   return A.x * B.y - A.y * B.x;
 }
 
-double dotproduct(const vertex& A, const vertex& B) {
+double dotproduct(const point& A, const point& B) {
   return (A.x * B.x) + (A.y * B.y);
 }
 
-double exterior_angle(const vertex& origin, const vertex& A, const vertex& B) {
+double exterior_angle(const point& origin, const point& A, const point& B) {
  return atan2(crossproduct(A - origin, B - A), dotproduct(A - origin, B - A));
 }

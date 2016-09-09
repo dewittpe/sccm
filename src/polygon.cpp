@@ -3,14 +3,14 @@
 
 // [[Rcpp::export]]
 Rcpp::List polygon_cpp(Rcpp::NumericVector x, Rcpp::NumericVector y) {
-  std::vector<vertex> v;
+  std::vector<point> v;
 
   if (x.size() != y.size()) { 
     throw std::invalid_argument("length(x) != length(y)");
   }
 
   for (int i = 0; i < x.size(); ++i) {
-    v.push_back(vertex(x(i), y(i), i));
+    v.push_back(point(x(i), y(i), i));
   }
 
   polygon pg(v);

@@ -1,12 +1,13 @@
 PKG_VERSION = $(shell awk '/^Version:/{print $$2}' DESCRIPTION)
 PKG_NAME    = $(shell awk '/^Package:/{print $$2}' DESCRIPTION)
 
-.PHONY: data
+.PHONY: data vignettes
 
-DATA   = $(wildcard data/*.rda)
-SRC    = $(wildcard src/*.cpp)
-RFILES = $(wildcard R/*.R)
-MANS   = $(wildcard man/*.Rd)
+DATA      = $(wildcard data/*.rda)
+SRC       = $(wildcard src/*.cpp)
+RFILES    = $(wildcard R/*.R)
+MANS      = $(wildcard man/*.Rd)
+VIGNETTES = $(wildcard vignettes/*.Rmd)
 
 all: $(PKG_NAME)_$(PKG_VERSION).tar.gz
 
@@ -16,7 +17,10 @@ data/CircleLimitI.rda: data-raw/mcescher.R
 data/HexagonalFish.rda: data-raw/hexagonal-fish.R
 	Rscript data-raw/hexagonal-fish.R
 
-$(PKG_NAME)_$(PKG_VERSION).tar.gz: DESCRIPTION $(RFILES) $(SRC) $(DATA)
+vignettes: vignettes/sccm-overview.Rmd
+	R -e "devtools::build_vignettes()" 
+
+$(PKG_NAME)_$(PKG_VERSION).tar.gz: DESCRIPTION $(RFILES) $(SRC) $(DATA) $(VIGNETTES)
 	R -e "devtools::document()"
 	R CMD build .
 

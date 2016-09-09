@@ -4,11 +4,12 @@
 #define SCCM_H
 
 struct point { 
-  point() : x(0), y(0), id(0){}
-  point(double x, double y, int id) : x(x), y(y), id(id){} 
-
   double x, y;
   int id;
+
+  point() : x(0), y(0), id(0){}
+  point(double x, double y) : x(x), y(y), id(0){}
+  point(double x, double y, int id) : x(x), y(y), id(id){} 
 
   double norm() {return sqrt(pow(x, 2) + pow(y, 2));}
 

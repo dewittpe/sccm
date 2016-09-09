@@ -28,6 +28,10 @@ convex_hull_cpp <- function(x, y) {
     .Call('sccm_convex_hull_cpp', PACKAGE = 'sccm', x, y)
 }
 
+is_in_cpp <- function(x, y, v) {
+    .Call('sccm_is_in_cpp', PACKAGE = 'sccm', x, y, v)
+}
+
 polygon_cpp <- function(x, y) {
     .Call('sccm_polygon_cpp', PACKAGE = 'sccm', x, y)
 }

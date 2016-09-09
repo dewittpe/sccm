@@ -42,6 +42,19 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// is_in_cpp
+int is_in_cpp(double x, double y, Rcpp::NumericMatrix v);
+RcppExport SEXP sccm_is_in_cpp(SEXP xSEXP, SEXP ySEXP, SEXP vSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< double >::type x(xSEXP);
+    Rcpp::traits::input_parameter< double >::type y(ySEXP);
+    Rcpp::traits::input_parameter< Rcpp::NumericMatrix >::type v(vSEXP);
+    rcpp_result_gen = Rcpp::wrap(is_in_cpp(x, y, v));
+    return rcpp_result_gen;
+END_RCPP
+}
 // polygon_cpp
 Rcpp::List polygon_cpp(Rcpp::NumericVector x, Rcpp::NumericVector y);
 RcppExport SEXP sccm_polygon_cpp(SEXP xSEXP, SEXP ySEXP) {

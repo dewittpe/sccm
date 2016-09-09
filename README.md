@@ -20,14 +20,63 @@ Lloyd N. Trefethen.
 
 Useful methods in this package:
 
-* `convex_hull`: given a set of (x, y) coordinates, return the convex hull.
+* `convex_hull`: given a set of (x, y) coordinates, return the convex hull,
+  vertices listed in an anti-clockwise order, and the exterior angles at each
+  vertex.
+
+* `polygon`: given a set of (x, y) coordinates return, return the coordinates
+  and the exterior angles at each vertex.  
+
+* `is_in`: given a point and polygon, determin if the point is within, on, or
+  outside of the polygon.  
+
+* `polar2cartesian` : quick translation from polar to cartesian coordinates.
+
+* `cartesian2polar` : quick translation from cartesian to polar coordinates.  
+
 * `d2p`: the conformal mapping from the unit disk to a given polygon.
+
 * `p2d`: the (inverse) conformal mapping from a polygon to the unit disk.
+
 * `p2p`: a composite mapping from one polygon to another polygon.
 
+## Date Sets
+
+Two MC Escher images used to illustrate the conformal mappings
+* `CircleLimitI`
+* `HexagonalFish`
+
+## Vignettes
+Within R run
+
+    vignette("sccm-overview", package = "sccm")
+
+to get a detailed overview of the package.
+
 ## Install
-This package is currently *not* on CRAN.  You can install from the
-developmental version via 
+
+### Not on [CRAN](https://cran.rstudio.com)
+This package is currently **not** on CRAN.  Some elements of Trefethen's FORTRAN
+code is not compliant with the standards set by CRAN.  (writing to stdin/stdout,
+and stops)  A long term goal is to edit the FORTRAN code to make it CRAN
+compliant.
+
+    * checking compiled code ... NOTE
+    File ‘sccm/libs/sccm.so’:
+      Found ‘_gfortran_st_write’, possibly from ‘write’ (Fortran), ‘print’
+        (Fortran)
+        Objects: ‘sclibdbl.o’, ‘scpdbl.o’
+      Found ‘_gfortran_stop_string’, possibly from ‘stop’ (Fortran)
+        Object: ‘scpdbl.o’
+ 
+### Install form Github
+
+If you clone this repository you should be able to install the package via GNU
+make:
+
+    make install
+
+Or, you can install this package from github using the
 [`devtools`](https://github.com/hadley/devtools) package:
 
     if (!("devtools" %in% rownames(installed.packages()))) { 

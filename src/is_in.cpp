@@ -10,15 +10,18 @@
 //        = 0 if v is on the line defined by points a and b
 //        < 0 if v is right of the line defined by points a and b
 int left_of(const point& v, const point& a, const point& b) {
+
+  double tol = 1e-16;
+
   double lf = (b.x - a.x) * (v.y - a.y) - (v.x -  a.x) * (b.y - a.y); 
 
-  if (lf < 0) { 
-    return -1;
-  } else if (lf > 0) { 
-    return 1;
-  } else {
+  if (std::fabs(lf) < tol) {
     return 0;
-  }
+  } else if (lf < 0) { 
+    return -1;
+  } else { 
+    return 1;
+  } 
 } 
 
 // winding_number: 
@@ -33,6 +36,10 @@ int winding_number(const point& p, std::vector<point>& v) {
 
   for (int i = 0; i < v.size(); ++i) {
     lf = left_of(p, v[i], v[i+1]);
+
+    Rcpp::Rcout << "current wn " << wn << std::endl;
+    Rcpp::Rcout << "lf " << lf << std::endl;
+
     if (lf == 0) { 
       wn = -1;
       i = v.size();
@@ -47,6 +54,7 @@ int winding_number(const point& p, std::vector<point>& v) {
         }
       }
     }
+    Rcpp::Rcout << "updated wn " << wn << "\n\n" << std::endl;
   } 
   return wn;
 }

@@ -1,0 +1,869 @@
+
+
+
+     SSSSS     CCCCC    PPPPPP      AAA      CCCCC    KK      KK
+    SC   HW   AR   ZC   HR   IS    TO FF    EL   PA   CK     AGE
+    SS        CC        PP    PP  AA   AA   CC        KK    KK
+     SS       CC        PP   PP   AA   AA   CC        KK  KKK
+      SSS     CC        PPPPBY    AAAAAAA   CC        KKKKK
+        SS    CC        PP        AA   AA   CC        KK  KKK
+         SS   CC        PP        AA   AA   CC        KK    KK
+    LL   OY   DN   IC   HO        LA   ST   RE   FE   TH     EN
+     SSSSS     CCCCC    PP        AA   AA    CCCCC    KK      KK
+
+                             Version 2
+
+                           USER'S  GUIDE
+
+
+      Description of a collection of programs for computing the
+   Schwarz-Christoffel conformal map between a disk and a polygon
+
+
+                         Lloyd N. Trefethen
+
+              Courant Institute of Mathematical Sciences
+                        New York University
+                           251 Mercer St.
+                         New York, NY 10012
+                             July 1983
+
+
+
+                              CONTENTS
+
+    INTRODUCTION... 1
+
+    STRUCTURE OF THE PACKAGE... 2
+      Capabilities and speed
+      Fortran environment
+      Differences between Versions 1 and 2
+      Routines included
+      Machine dependent constants
+      Common blocks
+
+    USE OF THE PACKAGE... 6
+      Outline
+      QINIT: initialization for Gauss-Jacobi quadrature
+      SCSOLV: solution of parameter problem
+      WSC: evaluation of the forward map
+      ZSC: evaluation of the inverse map
+
+    EXAMPLES... 11
+      TEST1: check WSC and ZSC against exact solution
+      TEST2: call RESIST to compute a resistance
+      TEST3: generate a rectilinear grid
+
+    PROGRAM LISTING (excluding library routines)... 18
+
+
+
+                          INTRODUCTION
+
+      The SCPACK collection contains Fortran routines for computing
+   the Schwarz-Christoffel transformation,  a conformal map  that
+   maps the interior  of the unit disk in the  complex plane onto
+   the interior of a polygon P with vertices W(k), k=1,...,N:
+
+                    w       =      w ( z )
+                 polygon             disk
+
+   The image polygon may have vertices at infinity, so that it is
+   really any simply-connected region in the plane whose boundary
+   consists of a finite number of straight lines.   The conformal
+   map can be applied to a variety of problems involving a polyg-
+   onal problem domain:  for example,  solving Laplace's equation
+   with Dirichlet, Neumann, or mixed boundary conditions; solving
+   Poisson's equation;  finding eigenvalues of the Laplace opera-
+   tor;  hodograph computations  for ideal  free-streamline flow;
+   grid generation.
+
+      The design  of SCPACK is  described along  with some
+   elementary applications in
+
+      L.N. Trefethen,  "Numerical  Computation  of  the
+      Schwarz-Christoffel  Transformation,"  SIAM J. Sci. Stat.
+      Comput. 1 (1080), 82-102.
+
+   To obtain copies of this User's Guide, or to arrange to  obtain
+   a machine-readable copy of the code, contact me at the address
+   given on the title page.   For quick response, send a 9 track,
+   odd parity, unalabeled tape of density 1600 bpi along with
+   specifications of blocksize, record length, and ASCII or EBCDIC.
+
+      Use of the package is unrestricted, except that a reference
+   should be given  in any publications that make use  of it.  I
+   would be pleased to receive reprints of  any such publica-
+   tions, or less formal descriptions of applications of SCPACK.
+   Any suggestions for improvements in the program or its document-
+   ation are eagerly solicited.
+
+
+
+                      STRUCTURE OF THE PACKAGE
+
+
+Capabilities and speed
+
+      SCPACK contains routines to solve the "parameter problem"
+   associated with the Schwarz-Christoffel map (subroutine SCSOLV),
+   to evaluate the resulting S-C map (WSC), and to evaluate its inverse
+   (ZSC).  At present the package has been tested on VAX, IBM 370,
+   and CYBER 173,175 computers.  A typical computation requires on the
+   order of minutes on a Vax 750 and on the order of seconds on
+   the other machines.  See the paper referenced in the Introduction
+   for a discussion of execution speed.
+
+      The bottleneck in all SCPACK computations is a calculation of
+   a complex logarithm within subroutine ZPROD.  Some optimization
+   here might speed up the package at particular installations.
+
+      For high-accuracy conformal mapping of a polygon, the Schwarz-
+   Christoffel approach is extremely satisfactory because it handles
+   the singularities at corners exactly and reduces the map to a
+   finite number of parameters.  On the other hand it is not
+   recommended that SCPACK be used for mapping curved domains
+   by means of polygonal approximations.  Many superior methods
+   based on integral equations exist for such problems; for
+   references see the recent numerical analysis literature or
+   one of the following books:
+
+      - D. Gaier, Konstruktive Methoden in der Konformen Abbildung,
+        Springer, 1964.
+
+      - P. Henrici, Applied and Computational Complex Analysis III,
+        Wiley-Interscience, to appear around 1985.
+
+Fortran environment
+
+      SCPACK is written in a subset of Fortran 77 that should be
+   acceptable to most Fortran 66 compilers.
+
+      All real numbers are single precision and all complex numbers
+   are complex single precision.   Computations  involving  complex
+   quantities are  always performed  in complex  arithmetic,  and
+   variables whose names begin with C,   W,  or Z are always com-
+   plex.   Each routine (other than those in the library routines
+   described below) begins with the statement
+
+         IMPLICIT COMPLEX(C,W,Z)
+
+   to make these type conventions automatic.
+
+Differences between Versions 1 and 2
+
+      SCPACK Version 1 (= 1.1) was developed on an IBM 370  installation
+   at the Stanford Linear Accelerator Center.   Version 2 was developed
+   on a VAX 750 / Unix machine at the Institute for Computer Applic-
+   ations in Science and Engineering (ICASE), NASA Langley Research
+   Center.  The main difference is that Version 2 is written in single
+   rather than double precision and attempts to be more portable.  Here
+   are some specific changes from Version 1:
+
+   - All real and complex variables are single precision.  This change
+     was made mainly because complex double precision is not standard
+     in Fortran 77.  If you are using SCPACK on a machine with a short
+     word length (e.g. 32 bits), it is recommended that you compile
+     the code with an automatic precision doubling feature, if available.
+     On the IBM 370 this is the AUTODBL feature.
+
+   - Generic functions MAX, MIN, ABS, LOG, EXP, ACOS, SIN, COS,
+     REAL, CMPLX, SIGN, and MOD are used instead of specific functions
+     AMIN1, CABS, ALOG, etc.  It is assumed that the compiler auto-
+     matically provides results of the same type as the argument.
+
+   - PLTCON, PLTSCL, FINITE, and ZFNEWT have been removed.  A routine
+     NEARW analogous to NEARZ has been added.
+
+   - The calling sequences of routines QINIT, WSC, ZSC, and NEARZ have
+     been changed.
+
+   - A gamma function routine GAMMA has been included in GAUSSJ, since
+     some compilers do not include this as an intrinsic function.
+
+Routines included
+
+      SCPACK consists of 19 subroutines, 4 of which the user will
+   control directly.  These are:
+
+      QINIT   computes Gauss-Jacobi quadrature nodes and weights
+      SCSOLV  solves the mapping problem for a given polygon
+      WSC     evaluates the forward map  w(z)
+      ZSC     evaluates the inverse map  z(w)
+
+   Depending on the application,  the user  may also wish to make
+   use of
+
+      ANGLES  computes angles, given vertices
+      RPROD   computes |w'(z)|**2 at a point z
+      NEARZ   returns the number of the nearest prevertex, etc.
+      NEARW   returns the number of the nearest vertex, etc.
+      ZQUAD   computes the S-C integral between two points
+
+   Here are the other internal routines of SCPACK, which the user
+   will not normally need direct access to:
+
+      CHECK        SCFUN        SCTEST       ZQUAD1       ZQSUM
+      YZTRAN       SCOUTP       ZFODE        DIST         ZPROD
+
+   In addition,  three sets of library  routines are made use of.
+   NS01A,  by M.J.D.  Powell,  solves a nonlinear system of equa-
+   tions whose  solution is required  for the  parameter problem.
+   NS01A includes a  few linear algebra routines  from LINPACK to
+   invert a matrix.  All together:
+
+      NS01A        SGEFA        SGEDI        SSWAP
+      SAXPY        SSCAL        ISAMAX
+
+   QINIT requires GAUSSJ  and its subordinate routines,   by G.H.
+   Golub  and  J.H.  Welsch,   to compute  nodes and  weights for
+   Gauss-Jacobi quadrature:
+
+      GAUSSJ       CLASS        IMTQL2*      GAMMA*
+
+   Finally (and least essentially) ZSC requires ODE,  by Shampine
+   and Gordon, to solve an ordinary differential equation:
+
+      ODE          DE*          STEP*        INTRP
+
+   The implementer  is free to  experiment with  other comparable
+   routines to replace these three packages;  SCPACK should still
+   work satisfactorily after such substitutions.  However, all of
+   the above  routines are normally  included on an  SCPACK tape.
+   They are all  in the public domain.   (Subroutine  GAMMA is an
+   adaptation from  the proprietary  IMSL library,  but it may be
+   freely called as  part of the GAUSSJ  group provided it is not
+   separated for general use.)
+
+*Machine dependent constants
+
+      The routines marked with asterisks in the list above contain
+   machine dependent constants, as follows:
+
+        IMTQL2:  MACHEP = U
+
+            DE:  FOURU = 4*U
+
+          STEP:  FOURU = 4*U , TWOU = 2*U
+
+         GAMMA:  various quantities
+
+   where U is the smallest floating point number such that 1+U > U.
+   In the standard SCPACK tape these numbers are set to generous
+   values that should give satisfactory although not ideal perfor-
+   mance in single precision on most machines.  The user compiling
+   SCPACK in double precision should replace the default values with
+   correct ones if possible.  However, SCPACK will perform more
+   reliably in double than in single precision even if the machine-
+   dependent constants are not changed.
+
+      Subroutine GAMMA contains many machine dependent constants
+   and should be replaced by a locally available gamma function
+   routine if the user wants more than 5 or 6 places of accuracy.
+
+Common blocks
+
+      The  package  makes  use  of  two  labeled  common  blocks,
+   /PARAM1/ and /PARAM2/.   These are needed for getting informa-
+   tion to the functions SCFUN and ZFODE called by NS01A and ODE,
+   respectively, whose calling sequences are fixed.
+
+
+
+
+                         USE OF THE PACKAGE
+
+
+Outline
+
+      To compute the Schwarz-Christoffel  transformation from the
+   unit disk  to a  given  polygon,  here is what to do.   First,
+   set N (number of vertices), W(k) (the vertices), NPTSQ (number
+   of quadrature points per subinterval), and BETAM(k)  (external
+   angles divided by minus pi).  (Each angle BETAM(k) can be com-
+   puted by subroutine ANGLES from the vertices W(k-1), W(k), and
+   W(k+1)  if these are all finite.)    Now call QINIT to compute
+   nodes and weights for Gauss-Jacobi quadrature.  Second, set WC
+   (a point interior to the polygon)  and the other input parame-
+   ters to SCSOLV, and call SCSOLV to solve the parameter problem
+   for the constant C and the prevertices Z(k).  Third, map indi-
+   vidual points  as desired  from the disk  to the  polygon with
+   routine WSC and from the polygon to the disk with routine ZSC.
+
+      More complicated  problems may  require other  sequences of
+   computations.   For example,  two or more S-C maps can be com-
+   posed in  arbitrary ways  by calling  QINIT and  SCSOLV twice,
+   using of course distinct variables in the calling sequences to
+   them.  This is necessary whenever one polygon  is mapped  onto
+   another  with the  disk  as an  intermediate  domain.  See the
+   example TEST3 below for an example of composition of maps.
+
+QINIT: initialization for Gauss-Jacobi quadrature
+
+      QINIT must be called before SCSOLV, WSC,  or ZSC.   It com-
+   putes  Gauss-Jacobi quadrature  nodes and  weights which  make
+   integration of the Schwarz-Christoffel formula possible.
+
+      SUBROUTINE QINIT(N,BETAM,NPTSQ,QWORK)
+
+      N, BETAM,  and NPTSQ  are input parameters.  All four argu-
+   ments are  described in the SCSOLV documentation below.  NPTSQ
+   is the number of quadrature points which will  be used on each
+   quadrature subinterval.  This  is roughly equal to the  number
+   of  digits of  accuracy to which integrals will be calculated.
+   Thus typical values might be 2, 4, or 6.   Total SCPACK compu-
+   tation time increases roughly linearly with NPTSQ.
+
+      QWORK is  a work  array that must  be dimensioned  at least
+   NPTSQ*(2N+3),  which  on output will contain  quadrature nodes
+   and weights corresponding to the various vertices of the poly-
+   gon.   The same array with the  same NPTSQ must be given later
+   as input to SCSOLV, WSC, or ZSC.   If more than one S-C map is
+   to be  composed,  then  more than  one copy  of QWORK  must be
+   filled by QINIT and kept for SCSOLV, WSC, or ZSC.
+
+SCSOLV: solution of the parameter problem
+
+      SCSOLV solves the parameter problem for the constants C and
+   the prevertices Z(k) of the S-C map.  This map is of the form
+
+                          Z    N
+     W   =   WC  +   C * INT PROD (1-Z/Z(K))**BETAM(K) DZ .
+                          0   K=1
+
+   If the problem involves  a map of the disk onto  a given poly-
+   gon,  SCSOLV must be called before  this map is evaluated with
+   WSC or ZSC.  (In rarer applications where the prevertices Z(k)
+   and angles  BETA(k)  are known at  the outset rather  than the
+   vertices W(k),  SCSOLV is not  needed.   This occurs  below in
+   example TEST3.)
+
+
+      SUBROUTINE SCSOLV(IPRINT,IGUESS,TOL,ERREST,N,C,Z,WC,
+     &   W,BETAM,NPTSQ,QWORK)
+
+
+   IPRINT  -2,-1,0, OR 1 FOR INCREASING AMOUNTS OF OUTPUT (INPUT)
+
+   IGUESS  1 IF AN INITIAL GUESS FOR Z IS SUPPLIED, OTHERWISE 0
+           (INPUT)
+
+   TOL     DESIRED ACCURACY IN SOLUTION OF NONLINEAR SYSTEM
+           (INPUT).  RECOMMENDED VALUE: 10.**(-NPTSQ-1) * TYPICAL
+           SIZE OF VERTICES W(K)
+
+   ERREST  ESTIMTATED ERROR IN SOLUTION (OUTPUT).  MORE
+           PRECISELY, ERREST IS AN APPROXIMATE BOUND FOR HOW FAR
+           THE TRUE VERTICES OF THE IMAGE POLYGON MAY BE FROM THOSE
+           COMPUTED BY NUMERICAL INTEGRATION USING THE
+           NUMERICALLY DETERMINED PREVERTICES Z(K).
+
+   N       NUMBER OF VERTICES OF THE IMAGE POLYGON (INPUT).
+           MUST BE .LE. 20
+
+   C       COMPLEX SCALE FACTOR IN FORMULA ABOVE (OUTPUT)
+
+   Z       COMPLEX ARRAY OF PREVERTICES ON THE UNIT CIRCLE.
+           DIMENSION AT LEAST N.  IF AN INITIAL GUESS IS
+           BEING SUPPLIED IT SHOULD BE IN Z ON INPUT, WITH Z(N)=1.
+           IN ANY CASE THE CORRECT PREVERTICES WILL BE IN Z ON OUTPUT.
+
+   WC      COMPLEX IMAGE OF 0 IN THE POLYGON, AS IN ABOVE FORMULA
+           (INPUT).  IT IS SAFEST TO PICK WC TO BE AS CENTRAL AS
+           POSSIBLE IN THE POLYGON IN THE SENSE THAT AS FEW PARTS
+           OF THE POLYGON AS POSSIBLE ARE SHIELDED FROM WC BY
+           REENTRANT EDGES.
+
+   W       COMPLEX ARRAY OF VERTICES OF THE IMAGE POLYGON
+           (INPUT).  DIMENSION AT LEAST N.  IT IS A GOOD IDEA
+           TO KEEP THE W(K) ROUGHLY ON THE SCALE OF UNITY.
+           W(K) WILL BE IGNORED WHEN THE VERTEX LIES AT INFINITY;
+           SEE BETAM, BELOW.  EACH CONNECTED BOUNDARY COMPONENT
+           MUST INCLUDE AT LEAST ONE VERTEX W(K), EVEN IF IT
+           HAS TO BE A DEGENERATE VERTEX WITH BETAM(K) = 0.
+           W(N) AND W(1) MUST BE FINITE.
+
+   BETAM   REAL ARRAY WITH BETAM(K) THE EXTERNAL ANGLE IN THE
+           POLYGON AT VERTEX K DIVIDED BY MINUS PI (INPUT).
+           DIMENSION AT LEAST N.  PERMITTED VALUES LIE IN
+           THE RANGE -3.LE.BETAM(K).LE.1.  (EXAMPLES: EACH
+           BETAM(K) IS -1/2 FOR A RECTANGLE, -2/3 FOR AN EQUI-
+           LATERAL TRIANGLE, +1 AT THE END OF A SLIT.)  THE
+           SUM OF THE BETAM(K) WILL BE -2 IF THEY HAVE BEEN
+           SET CORRECTLY.  BETAM(N-1) SHOULD NOT BE 0 OR 1.
+           W(K) LIES AT INFINITY IF AND ONLY IF BETAM(K).LE.-1.
+
+   NPTSQ   THE NUMBER OF POINTS TO BE USED PER SUBINTERVAL
+           IN GAUSS-JACOBI QUADRATURE (INPUT).  RECOMMENDED
+           VALUE: EQUAL TO ONE MORE THAN THE NUMBER OF DIGITS
+           OF ACCURACY DESIRED IN THE ANSWER.  MUST BE THE SAME
+           AS IN THE CALL TO QINIT WHICH FILLED THE VECTOR QWORK.
+
+   QWORK   REAL QUADRATURE WORK ARRAY (INPUT).  DIMENSION
+           AT LEAST NPTSQ * (2N+3) BUT NO GREATER THAN 460.
+           BEFORE CALLING SCSOLV QWORK MUST HAVE BEEN FILLED
+           BY SUBROUTINE QINIT.
+
+
+WSC: evaluation of the forward map
+
+      Once the parameter  problem has  been solved,  the function
+   WSC is available to solve the forward map: w = w(z).  WSC is a
+   complex function with calling sequence
+
+      FUNCTION WSC(ZZ,KZZ,Z0,W0,K0,N,C,Z,BETAM,NPTSQ,QWORK)
+
+   The value returned will be the image of ZZ in the polygon.
+
+   ZZ     POINT IN THE DISK AT WHICH W(ZZ) IS DESIRED (INPUT)
+
+   KZZ    K IF ZZ = Z(K) FOR SOME K, OTHERWISE 0 (INPUT)
+
+   Z0     NEARBY POINT IN THE DISK AT WHICH W(Z0) IS KNOWN AND
+          FINITE (INPUT)
+
+   W0     W(Z0)  (INPUT)
+
+   K0     K IF Z0 = Z(K) FOR SOME K, OTHERWISE 0 (INPUT)
+
+   N,C,Z,BETAM,NPTSQ,QWORK     AS IN SCSOLV (INPUT)
+
+
+      Z0 should not  be too far from ZZ.   A  simple and adequate
+   choice is the nearest prevertex Z(k) with W(k) finite, or 0 if
+   0 is closer than  any Z(k).   This choice of Z0  can be deter-
+   mined automatically by the function NEARZ, which is documented
+   in its comment cards.  See TEST3 below for an example.
+
+ZSC: evaluation of the inverse map
+
+      ZSC is parallel  to WSC in usage but  evaluates the inverse
+   map z = z(w).  The calling sequence is
+
+         FUNCTION ZSC(WW,IGUESS,ZINIT,Z0,W0,K0,EPS,IER,N,C,
+        &  Z,WC,W,BETAM,NPTSQ,QWORK)
+
+   The value returned will be the preimage of WW in the disk.
+
+   WW     POINT IN THE POLYGON AT WHICH Z(WW) IS DESIRED (INPUT)
+
+   IGUESS (INPUT)
+          .EQ.1 - INITIAL GUESS IS SUPPLIED AS PARAMETER ZINIT
+          .NE.1 - GET INITIAL GUESS FROM PROGRAM ODE (SLOWER).
+                  FOR THIS THE SEGMENT WC-WW MUST LIE WITHIN
+                  THE POLYGON.
+
+   ZINIT  INITIAL GUESS IF IGUESS.EQ.1, OTHERWISE IGNORED (INPUT).
+          MAY NOT BE A PREVERTEX Z(K)
+
+   Z0     POINT IN THE DISK NEAR Z(WW) AT WHICH W(Z0) IS KNOWN AND
+          FINITE (INPUT).
+
+   W0     W(Z0)  (INPUT).  THE LINE SEGMENT FROM W0 TO WW MUST
+          LIE ENTIRELY WITHIN THE POLYGON.
+
+   K0     K IF Z0 = Z(K) FOR SOME K, OTHERWISE 0 (INPUT)
+
+   EPS    DESIRED ACCURACY IN ANSWER Z(WW)  (INPUT)
+
+   IER    ERROR FLAG (INPUT AND OUTPUT).
+          ON INPUT, GIVE IER.NE.0 TO SUPPRESS ERROR MESSAGES.
+          ON OUTPUT, IER.NE.0 INDICATES UNSUCCESSFUL COMPUTATION --
+          TRY AGAIN WITH A BETTER INITIAL GUESS.
+
+   N,C,Z,WC,W,BETAM,NPTSQ,QWORK     AS IN SCSOLV (INPUT)
+
+      As with  WSC, here  W0 should not be  too far from WW.  The
+   routine NEARW selects  WC or the nearest vertex W(k) for W0, a
+   choice that should  be suitable for  many applications.  NEARW
+   is documented in its comment cards.
+
+      Note that  the segment W0-WW  must lie entirely  within the
+   image polygon.   In treating non-convex polygons the user must
+   bear this in  mind when calling ZSC -- it  may occasionally be
+   necessary to first  find the inverse image  of an intermediate
+   point W0'.
+
+
+                              EXAMPLES
+
+
+TEST1: check WSC and ZSC against exact solution
+
+      The first  program computes  the S-C map  in a  simple case
+   where it is known analytically.   Results for both the forward
+   map WSC  and the inverse  map ZSC  are then compared  with the
+   exact values.   This  is an example  of a polygon  with a
+   vertex at infinity.
+
+      PROGRAM TEST1
+      IMPLICIT COMPLEX(C,W,Z)
+      DIMENSION Z(20),W(20),BETAM(20),QWORK(344)
+      ZERO = (0.,0.)
+      ZI = (0.,1.)
+C
+C SET UP PROBLEM:
+      N = 4
+      WC = CMPLX(0.,SQRT(2.))
+      W(1) = ZI
+      W(2) = ZERO
+      W(3) = (1.E20,1.E20)
+      W(4) = ZERO
+      BETAM(1) = 1.
+      BETAM(2) = -.5
+      BETAM(3) = -2.
+      BETAM(4) = -.5
+C
+C COMPUTE NODES AND WEIGHTS FOR PARAMETER PROBLEM:
+      NPTSQ = 5
+      CALL QINIT(N,BETAM,NPTSQ,QWORK)
+C
+C SOLVE PARAMETER PROBLEM:
+C   (INITIAL GUESS MUST BE GIVEN TO AVOID ACCIDENTAL EXACT SOLUTION)
+      IPRINT = 0
+      IGUESS = 1
+      DO 1 K = 1,4
+    1 Z(K) = EXP(CMPLX(0.,K-4.))
+      TOL = 1.E-6
+      CALL SCSOLV(IPRINT,IGUESS,TOL,ERREST,N,C,Z,
+     &  WC,W,BETAM,NPTSQ,QWORK)
+C
+C COMPARE WSC(Z) TO EXACT VALUES FOR VARIOUS Z:
+      DO 10 I = 1,4
+        ZZ = (.3,0.) * CMPLX(I-2.,.2*I+.5)
+        WW = WSC(ZZ,0,ZERO,WC,0,N,C,Z,BETAM,NPTSQ,QWORK)
+        ZTMP = -ZI * (ZZ-ZI) / (ZZ+ZI)
+        WWEX = ZI * SQRT(-ZTMP**2 + (1.,0.))
+        ERR = ABS(WW-WWEX)
+        WRITE (6,201) ZZ,WW,WWEX,ERR
+   10   CONTINUE
+      WRITE (6,200)
+C
+C COMPARE ZSC(W) TO EXACT VALUES FOR VARIOUS W:
+      DO 20 I = 1,6
+        WW = CMPLX(I-2.,SQRT(I+1.))
+        IER = 0
+        ZZ = ZSC(WW,0,ZERO,ZERO,WC,0,TOL,IER,
+     &    N,C,Z,WC,W,BETAM,NPTSQ,QWORK)
+
+        WTMP = ZI * SQRT((-1.,0.)-WW**2)
+        ZZEX = -ZI * (WTMP-ZI) / (WTMP+ZI)
+        ERR = ABS(ZZ-ZZEX)
+        WRITE (6,202) WW,ZZ,ZZEX,ERR
+   20   CONTINUE
+C
+      STOP
+  200 FORMAT (1X)
+  201 FORMAT (' Z,W,WEX,ERR: ',3('(',F6.3,',',F6.3,') '),D11.4)
+  202 FORMAT (' W,Z,ZEX,ERR: ',3('(',F6.3,',',F6.3,') '),D11.4)
+      END
+
+
+      When I ran TEST1 on the VAX 750 under the UNIX F77 compiler,
+   this was the output.  (See p. 94 of the paper referenced in the
+   Introduction for an explanation of the oscillatory error figures.)
+
+     THE SUM-OF-SQUARES ERROR AT STEP   1 IS  .4628e+00
+     THE SUM-OF-SQUARES ERROR AT STEP   2 IS  .4647e+00
+     THE SUM-OF-SQUARES ERROR AT STEP   3 IS  .4616e+00
+     THE SUM-OF-SQUARES ERROR AT STEP   4 IS  .4656e+00
+     THE SUM-OF-SQUARES ERROR AT STEP   5 IS  .3467e+00
+     THE SUM-OF-SQUARES ERROR AT STEP   6 IS  .2426e-01
+     THE SUM-OF-SQUARES ERROR AT STEP   7 IS  .1397e+00
+     THE SUM-OF-SQUARES ERROR AT STEP   8 IS  .1097e-02
+     THE SUM-OF-SQUARES ERROR AT STEP   9 IS  .1231e-04
+     THE SUM-OF-SQUARES ERROR AT STEP  10 IS  .2705e-05
+     THE SUM-OF-SQUARES ERROR AT STEP  11 IS  .1665e-06
+     THE SUM-OF-SQUARES ERROR AT STEP  12 IS  .3947e-04
+     THE SUM-OF-SQUARES ERROR AT STEP  13 IS  .6966e-08
+     THE SUM-OF-SQUARES ERROR AT STEP  14 IS  .1194e-04
+     THE SUM-OF-SQUARES ERROR AT STEP  15 IS  .6152e-12
+
+ PARAMETERS DEFINING MAP:               (N =  4)      (NPTSQ =  5)
+
+  K          W(K)          TH(K)/PI     BETAM(K)             Z(K)
+ ---         ----          --------     --------             ----
+
+  1    (  .000, 1.000)     .49999988     1.00000   (  .00000031, 1.00000000)
+  2    (  .000,  .000)     .99999976     -.50000   (-1.00000000,  .00000063)
+  3        INFINITY       1.50000000    -2.00000   (  .00000001,-1.00000000)
+  4    (  .000,  .000)    2.00000000     -.50000   ( 1.00000000,  .00000000)
+
+ WC = (  .00000000e+00,  .14142135e+01)
+  C = ( -.14142140e+01,  .00000000e+00)
+
+ ERREST:   .5235e-06
+
+ Z,W,WEX,ERR: ( -.300,  .210) (  .196, 1.095) (  .196, 1.095)   .1229e-06
+ Z,W,WEX,ERR: (  .000,  .270) (  .000, 1.153) (  .000, 1.153)   .1199e-06
+ Z,W,WEX,ERR: (  .300,  .330) ( -.133, 1.048) ( -.133, 1.048)   .1406e-06
+ Z,W,WEX,ERR: (  .600,  .390) ( -.126,  .887) ( -.126,  .887)   .1490e-06
+
+ W,Z,ZEX,ERR: (-1.000, 1.414) (  .383, -.295) (  .383, -.295)   .2980e-07
+ W,Z,ZEX,ERR: (  .000, 1.732) (  .000, -.172) (  .000, -.172)   .4479e-07
+ W,Z,ZEX,ERR: ( 1.000, 2.000) ( -.245, -.383) ( -.245, -.383)   .0000e+00
+ W,Z,ZEX,ERR: ( 2.000, 2.236) ( -.298, -.560) ( -.298, -.560)   .5960e-07
+ W,Z,ZEX,ERR: ( 3.000, 2.449) ( -.296, -.679) ( -.296, -.679)   .1333e-06
+ W,Z,ZEX,ERR: ( 4.000, 2.646) ( -.276, -.757) ( -.276, -.757)   .6957e-06
+
+TEST2: call RESIST to compute a resistance
+
+      This program computes the resistance  (conformal module) of
+   an  L-shaped hexagon,  assuming that a  voltage  difference is
+   applied between the top and the bottom edges. The exact answer
+   is SQRT(3) = 1.7320508.  The subroutine RESIST is used for the
+   computation. RESIST is a driver for SCSOLV, etc. that composes
+   two Schwarz-Christoffel maps in such a way as to map a polygon
+   conformally onto a rectangle and  thereby determine the dimen-
+   sions of  a rectangle  which is  electrically equivalent  to a
+   given polygonal resistor.   RESIST is not documented here, but
+   the program is normally included in the SCPACK  tape  and  the
+   comments there should be sufficient documentation.
+
+      PROGRAM TEST2
+      IMPLICIT COMPLEX (C,W,Z)
+      DIMENSION W(10),IBRK(4),QWORK(300)
+      N = 6
+      W(1) = (0.,0.)
+      W(2) = (2.,0.)
+      W(3) = (2.,1.)
+      W(4) = (1.,1.)
+      W(5) = (1.,2.)
+      W(6) = (0.,2.)
+      WC = (.5,.5)
+      IBRK(1) = 1
+      IBRK(2) = 2
+      IBRK(3) = 5
+      IBRK(4) = 6
+C
+C MAIN LOOP: DIFFERENT ACCURACY SPECIFICATIONS:
+      DO 10 NDIG = 1,5,2
+        WRITE (6,202) NDIG
+        R = RESIST(N,W,WC,IBRK,NDIG,ERREST,QWORK)
+        WRITE (6,201) R,ERREST
+   10   CONTINUE
+      STOP
+C
+  201 FORMAT ('   R,ERREST:',2D23.15)
+  202 FORMAT (/' NDIG =',I3,':')
+      END
+
+      Here is the output from a run of the above program:
+
+ NDIG =  1:
+   R =  1.732014775    ERREST = .145e-02
+
+ NDIG =  3:
+   R =  1.732097626    ERREST = .457e-03
+
+ NDIG =  5:
+   R =  1.732051611    ERREST = .176e-04
+
+TEST3: generate a rectilinear grid
+
+      The third test program, like RESIST, composes two Schwarz-
+   Christoffel maps to find the conformal map from a polygon with
+   four distinguished vertices onto a rectangle.  A rectilinear
+   grid of points in the rectangle is then transferred by ZSC
+   and WSC to the polygon.
+
+
+      PROGRAM TEST3
+C
+C COMPUTES THE CONFORMAL MAP FROM A POLYGON (1) ONTO A RECTANGLE (2)
+C AND PLOTS A CORRESPONDING GRID OF SIZE NX BY NY.
+C THE CORNERS OF THE RECTANGLE ARE (0,I), (0,0), (H,0), (H,I).
+C
+C NICK TREFETHEN, ICASE, JULY 1983
+C
+      IMPLICIT COMPLEX(C,W,Z)
+      DIMENSION WGRID(0:41,0:41)
+      DIMENSION Z1(12),W1(12),BETAM1(12),QWORK1(270),IBRK(4)
+      DIMENSION Z2(4),W2(4),BETAM2(4),QWORK2(110)
+      DATA ZERO /(0.,0.)/
+C
+C INPUT DATA
+      PRINT 90
+   90 FORMAT (' VERTICES? (TERMINATE WITH RE W(K) > 100 )')
+      K = 0
+   91 K = K+1
+      READ *,X,Y
+      W1(K) = CMPLX(X,Y)
+      IF (X.LT.100.) GOTO 91
+      N1 = K-1
+      PRINT 92
+   92 FORMAT (' IMAGE OF ZERO IN THE POLYGON?')
+      READ *,X,Y
+      WC1 = CMPLX(X,Y)
+      PRINT 93
+   93 FORMAT (' FOUR DISTINGUISHED VERTICES?')
+      READ *,(IBRK(K),K=1,4)
+      NQ1 = 3
+      NQ2 = NQ1
+      TOL = 10.**(-(NQ1+1))
+      PRINT 94
+   94 FORMAT (' NO. OF STREAMLINES, EQUIPOTENTIAL LINES?')
+      READ *,NY,NX
+      NXP = NX + 1
+      NYP = NY + 1
+C
+C COMPUTE PARAMETERS FOR MAP FROM DISK TO POLYGON
+      CALL ANGLES(N1,W1,BETAM1)
+      CALL QINIT(N1,BETAM1,NQ1,QWORK1)
+      CALL SCSOLV(0,0,TOL,EEST,N1,C1,Z1,WC1,W1,BETAM1,NQ1,QWORK1)
+
+C
+C COMPUTE PARAMETERS FOR MAP FROM DISK TO RECTANGLE
+      N2 = 4
+      C2 = (1.,0.)
+      DO 2 K = 1,4
+        BETAM2(K) = -.5
+    2   Z2(K) = Z1(IBRK(K))
+      CALL QINIT(N2,BETAM2,NQ2,QWORK2)
+      DO 3 K = 1,4
+    3   W2(K) = WSC(Z2(K),K,ZERO,ZERO,0,N2,C2,Z2,BETAM2,NQ2,QWORK2)
+      C2 = (0.,1.) / (W2(1)-W2(2))
+      WC2 = -C2*W2(2)
+      DO 4 K = 1,4
+    4   W2(K) = C2*W2(K) + WC2
+      WRITE (6,102) (W2(K),K=1,4)
+  102 FORMAT (' VERTICES OF IMAGE RECTANGLE: ',
+     &  4(/'   (',E13.6,',',E13.6,')')/)
+      H = ABS(W2(3)-W2(2))
+C
+C COMPUTE GRID POINTS
+      DO 12 J = 0,NYP
+        I1 = 0
+        I2 = NXP
+        IF (J.EQ.0.OR.J.EQ.NYP) I1 = 1
+        IF (J.EQ.0.OR.J.EQ.NYP) I2 = NX
+        DO 11 I = I1,I2
+          WW2 = CMPLX((I*H)/NXP,FLOAT(J)/NYP)
+          CALL NEARW(WW2,ZN2,WN2,KN2,N2,Z2,WC2,W2,BETAM2)
+          IER = 0
+          IGUESS = 1
+          IF (I.EQ.I1) IGUESS = 0
+          ZZ = ZSC(WW2,IGUESS,ZZ,ZN2,WN2,KN2,1.E-3,IER,N2,C2,
+     &      Z2,WC2,W2,BETAM2,NQ2,QWORK2)
+          CALL NEARZ(ZZ,ZN1,WN1,KN1,N1,Z1,WC1,W1,BETAM1)
+          WGRID(I,J) = WSC(ZZ,0,ZN1,WN1,KN1,N1,C1,Z1,BETAM1,NQ1,QWORK1)
+   11     CONTINUE
+   12   WRITE (6,105) J,NYP
+  105   FORMAT (' FINISHED ROW',I3,'/',I2,' OF GRID POINTS')
+C
+C DRAW PLOT
+      DO 5 K = 1,N1
+    5   WRITE (10,103) W1(K)
+      WRITE (10,104) W1(1)
+  103 FORMAT (2F10.5)
+  104 FORMAT (2F10.5,'" "')
+      DO 6 J = 1,NY
+        WRITE (10,103) (WGRID(I,J),I=0,NX)
+    6   WRITE (10,104) WGRID(NXP,J)
+      DO 7 I = 1,NX
+        WRITE (10,103) (WGRID(I,J),J=0,NY)
+    7   WRITE (10,104) WGRID(I,NYP)
+C
+      STOP
+      END
+
+      For a test I ran TEST3 on the VAX 750 and gave the following
+   input data at run time:
+
+ vertices? (terminate with Re w(k) > 100 )
+0 1
+0 0
+2 0
+3 -1
+3.5 -.5
+2.5 1
+999 0
+ image of zero in the polygon?
+2 .5
+ four distinguished vertices?
+1 2 4 5
+ no. of streamlines, equipotential lines?
+7 20
+
+      Here is the terminal output.  The slow convergence in this
+example is caused by the very uneven distribution of the prevertices
+on the unit circle, which is visible in the values of TH(K) in the
+table.  On the Cyber 175 this run took about 15 secs., most of it
+spent mapping points from rectangle to polygon after the parameter
+problem had been solved.
+
+     THE SUM-OF-SQUARES ERROR AT STEP   1 IS  .6139e+01
+     THE SUM-OF-SQUARES ERROR AT STEP   2 IS  .6130e+01
+     THE SUM-OF-SQUARES ERROR AT STEP   3 IS  .6135e+01
+     THE SUM-OF-SQUARES ERROR AT STEP   4 IS  .6135e+01
+     THE SUM-OF-SQUARES ERROR AT STEP   5 IS  .6137e+01
+     THE SUM-OF-SQUARES ERROR AT STEP   6 IS  .6140e+01
+     THE SUM-OF-SQUARES ERROR AT STEP   7 IS  .6703e+01
+     THE SUM-OF-SQUARES ERROR AT STEP   8 IS  .5241e+01
+     THE SUM-OF-SQUARES ERROR AT STEP   9 IS  .1980e+01
+     THE SUM-OF-SQUARES ERROR AT STEP  10 IS  .1048e+01
+     THE SUM-OF-SQUARES ERROR AT STEP  11 IS  .1729e+01
+     THE SUM-OF-SQUARES ERROR AT STEP  12 IS  .6516e+00
+     THE SUM-OF-SQUARES ERROR AT STEP  13 IS  .6521e+00
+     THE SUM-OF-SQUARES ERROR AT STEP  14 IS  .6360e+00
+     THE SUM-OF-SQUARES ERROR AT STEP  15 IS  .2172e+00
+     THE SUM-OF-SQUARES ERROR AT STEP  16 IS  .2987e+00
+     THE SUM-OF-SQUARES ERROR AT STEP  17 IS  .1774e+00
+     THE SUM-OF-SQUARES ERROR AT STEP  18 IS  .1560e+00
+     THE SUM-OF-SQUARES ERROR AT STEP  19 IS  .1109e+00
+     THE SUM-OF-SQUARES ERROR AT STEP  20 IS  .8883e-01
+     THE SUM-OF-SQUARES ERROR AT STEP  21 IS  .8904e-01
+     THE SUM-OF-SQUARES ERROR AT STEP  22 IS  .5549e-01
+     THE SUM-OF-SQUARES ERROR AT STEP  23 IS  .5532e-01
+     THE SUM-OF-SQUARES ERROR AT STEP  24 IS  .5532e-01
+     THE SUM-OF-SQUARES ERROR AT STEP  25 IS  .3392e-01
+     THE SUM-OF-SQUARES ERROR AT STEP  26 IS  .9875e-02
+     THE SUM-OF-SQUARES ERROR AT STEP  27 IS  .4590e-03
+     THE SUM-OF-SQUARES ERROR AT STEP  28 IS  .1225e-04
+     THE SUM-OF-SQUARES ERROR AT STEP  29 IS  .8053e-06
+     THE SUM-OF-SQUARES ERROR AT STEP  30 IS  .3812e-07
+     THE SUM-OF-SQUARES ERROR AT STEP  31 IS  .9499e-04
+     THE SUM-OF-SQUARES ERROR AT STEP  32 IS  .1182e-08
+
+ PARAMETERS DEFINING MAP:               (N =  6)      (NPTSQ =  3)
+
+  K          W(K)          TH(K)/PI     BETAM(K)             Z(K)
+ ---         ----          --------     --------             ----
+
+  1    (  .000, 1.000)     .84163296     -.50000   ( -.87876660,  .47725174)
+  2    (  .000,  .000)     .84644878     -.50000   ( -.88588625,  .46390247)
+  3    ( 2.000,  .000)    1.38581097      .25000   ( -.35109055, -.93634152)
+  4    ( 3.000,-1.000)    1.65438819     -.50000   (  .46623042, -.88466334)
+  5    ( 3.500, -.500)    1.65855527     -.43717   (  .47777134, -.87848425)
+  6    ( 2.500, 1.000)    2.00000000     -.31283   ( 1.00000000,  .00000000)
+
+ WC = (  .20000000e+01,  .50000000e+00)
+  C = (  .56718796e+00,  .31701493e+00)
+
+ ERREST:   .9236e-03
+
+ VERTICES OF IMAGE RECTANGLE:
+   (  .000000e+00,  .100000e+01)
+   (  .000000e+00,  .000000e+00)
+   (  .400924e+01, -.154972e-05)
+   (  .400924e+01,  .999998e+00)
+
+ FINISHED ROW  0/ 8 OF GRID POINTS
+ FINISHED ROW  1/ 8 OF GRID POINTS
+ FINISHED ROW  2/ 8 OF GRID POINTS
+ FINISHED ROW  3/ 8 OF GRID POINTS
+ FINISHED ROW  4/ 8 OF GRID POINTS
+ FINISHED ROW  5/ 8 OF GRID POINTS
+ FINISHED ROW  6/ 8 OF GRID POINTS
+ FINISHED ROW  7/ 8 OF GRID POINTS
+ FINISHED ROW  8/ 8 OF GRID POINTS
+
+
+      And here is the resulting plot:
+
+
+
+
+
+
+

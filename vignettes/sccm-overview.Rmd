@@ -196,13 +196,73 @@ plot(convex_hull(mtcars[, c("mpg", "wt")]))
 title(xlab = "MT Cars: MPG", ylab = "MT Cars: Weight")
 ```
 
+## `is_convex_hull`
+This function tests if a polygon is a convex hull or not.
+```{r}
+is_convex_hull(ch)
+is_convex_hull(polygon(c(-1, -1, 1, 1), c(-1, 1, 1, -1)))  # clockwise square
+is_convex_hull(polygon(c(-1, -1, 1, 1), c(1, -1, -1, 1)))  # anti-clockwise square
+is_convex_hull(star_pg)
+```
+
+## `is_anticlockwise`
+This function tests if a polygon is a convex hull and if so, are the vertices
+listed in anti-clockwise order.  Note: by construction, `sccm_ch` objects have
+the vertices listed in anti-clockwise order.
+
+```{r}
+is_anticlockwise(ch)
+is_anticlockwise(polygon(c(-1, -1, 1, 1), c(-1, 1, 1, -1)))  # clockwise square
+is_anticlockwise(polygon(c(-1, -1, 1, 1), c(1, -1, -1, 1)))  # anti-clockwise square
+is_anticlockwise(star_pg)
+```
+
 ## `is_in`
 
+The `is_in` function tests if a point is located on the inside, edge, or
+outside of a polygon.  The implementation is based on the winding number
+algorithm.
+
+```{r}
+# a point on an edge
+xx <- 0.75
+yy <- (diff(star_pg$vertices[1:2, 2]) / diff(star_pg$vertices[1:2, 1])) * (xx - star_pg$vertices[1, 1]) + star_pg$vertices[1, 2]
+
+is_in(-0.4, 0.1, star_pg) # inside
+is_in(0.5, -0.6, star_pg) # outside
+is_in(0.5, yy, star_pg)   # on an edge
+
+# send a set of points to is_in
+xcoords <- c(-0.4, 0.5, 0.5)
+ycoords <- c(0.1, -0.6, yy)
+is_in(xcoords, ycoords, star_pg)
+summary(is_in(xcoords, ycoords, star_pg))
+
+plot(star_pg, asp = 1)
+points(-0.4, 0.1, pch = 16, col = "black") # inside
+points(0.5, -0.6, pch = 16, col = "blue")  # outside
+points(xx, yy,    pch = 16, col = "red")   # on an edge 
+```
 
 # Schwarz-Christoffel Conformal Mappings
 
 ## Disk to Polygon
+```{r}
+# d2p(
+```
 
 ## Polygon to Disk
+```{r}
+# p2d(
+```
 
 ## Polygon to Polygon
+```{r}
+square_fish <- p2p(HexagonalFish[, 1:2])
+plot(square_fish, col = cut(HexagonalFish[, 3], breaks = 2))
+```
+
+```{r}
+star_fish <- p2p(HexagonalFish[, 1:2], pg2 = star_pg)
+plot(star_fish, col = cut(HexagonalFish[, 3], breaks = 2))
+```

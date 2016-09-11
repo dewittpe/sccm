@@ -11,11 +11,11 @@
 //        < 0 if v is right of the line defined by points a and b
 int left_of(const point& v, const point& a, const point& b) {
 
-  double tol = 1e-16;
+  double tol = 1e-32;
 
   double lf = (b.x - a.x) * (v.y - a.y) - (v.x -  a.x) * (b.y - a.y); 
 
-  if (std::fabs(lf) < tol) {
+  if (std::abs(lf) < tol) {
     return 0;
   } else if (lf < 0) { 
     return -1;
@@ -34,7 +34,7 @@ int winding_number(const point& p, std::vector<point>& v) {
   int wn = 0;
   int lf;
 
-  for (int i = 0; i < v.size(); ++i) {
+  for (int i = 0; i < v.size() - 1; ++i) {
     lf = left_of(p, v[i], v[i+1]);
 
     if (lf == 0) { 
@@ -63,19 +63,21 @@ int winding_number(const point& p, std::vector<point>& v) {
 // [[Rcpp::export]]
 Rcpp::IntegerVector is_in_cpp(Rcpp::NumericVector x, Rcpp::NumericVector y, Rcpp::NumericMatrix v) {
   std::vector<point> p(x.size());
-  std::vector<point> vertex(v.nrow());
+  std::vector<point> vertex(v.nrow() + 1);
+  Rcpp::IntegerVector out(x.size());
 
-  for (int i = 0; i < x.size(); ++i) {
+  int i;
+
+  for (i = 0; i < x.size(); ++i) {
     p[i] = point(x(i), y(i));
   }
 
-  for (int i = 0; i < v.nrow(); ++i) {
+  for (i = 0; i < v.nrow(); ++i) {
     vertex[i] = point(v(i, 0), v(i, 1));
-  }
+  } 
+  vertex[i] = point(v(0, 0), v(0, 1));
 
-  Rcpp::IntegerVector out(x.size());
-
-  for (int i = 0; i < v.nrow(); ++i) {
+  for (i = 0; i < x.size(); ++i) {
     out(i) = winding_number(p[i], vertex); 
   }
 

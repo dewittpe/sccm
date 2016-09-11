@@ -5,8 +5,9 @@
 #'
 #' @format A data frame
 #' \describe{
-#'   \item{pixel_x}{x coordinate}
-#'   \item{pixel_y}{y coordinate}
+#'   \item{x}{x coordinate}
+#'   \item{y}{y coordinate}
+#'   \item{value}{shading value}
 #' }
 #' @source \url{http://www.wikiart.org/en/m-c-escher/not_detected_204748}
 #'

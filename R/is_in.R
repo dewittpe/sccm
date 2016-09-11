@@ -54,13 +54,13 @@
 #'
 #' @export
 is_in <- function(x, y, pg) {
-  out <-
-    mapply(is_in_cpp,
-           x = x,
-           y = y,
-           MoreArgs = list(v = pg$vertices),
-           SIMPLIFY = FALSE)
-  out <- do.call(c, out)
+  out <- is_in(x, y, pg$vertices)
+    #   mapply(is_in_cpp,
+    #          x = x,
+    #          y = y,
+    #          MoreArgs = list(v = pg$vertices),
+    #          SIMPLIFY = FALSE)
+    # out <- do.call(c, out)
 
   attr(out, "x") <- x
   attr(out, "y") <- y

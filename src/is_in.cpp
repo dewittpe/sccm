@@ -61,14 +61,23 @@ int winding_number(const point& p, std::vector<point>& v) {
 // return -1 if (x, y) is on an edge of the polygon.
 //
 // [[Rcpp::export]]
-int is_in_cpp(double x, double y, Rcpp::NumericMatrix v) {
-  point p(x, y);
-
+Rcpp::IntegerVector is_in_cpp(Rcpp::NumericVector x, Rcpp::NumericVector y, Rcpp::NumericMatrix v) {
+  std::vector<point> p(x.size());
   std::vector<point> vertex(v.nrow());
+
+  for (int i = 0; i < x.size(); ++i) {
+    p[i] = point(x(i), y(i));
+  }
 
   for (int i = 0; i < v.nrow(); ++i) {
     vertex[i] = point(v(i, 0), v(i, 1));
   }
 
-  return winding_number(p, vertex); 
+  Rcpp::IntegerVector out(x.size());
+
+  for (int i = 0; i < v.nrow(); ++i) {
+    out(i) = winding_number(p[i], vertex); 
+  }
+
+  return out;
 }

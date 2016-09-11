@@ -257,12 +257,12 @@ points(xx, yy,    pch = 16, col = "red")   # on an edge
 ```
 
 ## Polygon to Polygon
-```{r}
+```{r, fig.width = 9, fig.height = 6}
 square_fish <- p2p(HexagonalFish[, 1:2])
 plot(square_fish, col = cut(HexagonalFish[, 3], breaks = 2))
 ```
 
-```{r}
+```{r, fig.width = 9, fig.height = 6}
 star_fish <- p2p(HexagonalFish[, 1:2], pg2 = star_pg)
 plot(star_fish, col = cut(HexagonalFish[, 3], breaks = 2))
 ```

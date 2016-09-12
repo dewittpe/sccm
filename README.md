@@ -55,8 +55,33 @@ to get a detailed overview of the package.
 
 ## Install
 
-### Not on [CRAN](https://cran.rstudio.com)
-This package is currently **not** on CRAN.  Some elements of Trefethen's FORTRAN
+If you clone this repository you should be able to install the package via GNU
+make:
+
+    make install
+
+
+### Install form Github
+
+You can install this package from github using the
+[`devtools`](https://github.com/hadley/devtools) package:
+
+    if (!("devtools" %in% rownames(installed.packages()))) { 
+      warning("installing devtools from https://cran.rstudio.com")
+      install.packages("devtools", 
+                       repo = "https://cran.rstudio.com")
+    }
+
+    devtools::install_github("dewittpe/sccm", 
+                             build_vignettes = TRUE)
+
+If you are working on a Windows machine you will need to download and install
+[`Rtools`](http://cran.r-project.org/bin/windows/Rtools/) before `devtools` will
+work for you.
+
+### What about CRAN?
+
+This package is currently **not** on [CRAN](https://cran.rstudio.com).  Some elements of Trefethen's FORTRAN
 code is not compliant with the standards set by CRAN.  (writing to stdin/stdout,
 and stops)  A long term goal is to edit the FORTRAN code to make it CRAN
 compliant.
@@ -69,25 +94,4 @@ compliant.
       Found ‘_gfortran_stop_string’, possibly from ‘stop’ (Fortran)
         Object: ‘scpdbl.o’
  
-### Install form Github
-
-If you clone this repository you should be able to install the package via GNU
-make:
-
-    make install
-
-Or, you can install this package from github using the
-[`devtools`](https://github.com/hadley/devtools) package:
-
-    if (!("devtools" %in% rownames(installed.packages()))) { 
-      warning("installing devtools from https://cran.rstudio.com")
-      install.packages("devtools", 
-                       repo = "https://cran.rstudio.com")
-    }
-
-    devtools::install_github("dewittpe/sccm")
-
-If you are working on a Windows machine you will need to download and install
-[`Rtools`](http://cran.r-project.org/bin/windows/Rtools/) before `devtools` will
-work for you.
 

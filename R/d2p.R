@@ -147,6 +147,7 @@ plot.sccm_d2p <- function(x, ...) {
   graphics::plot(x$data, asp = 1, xlim = c(-1, 1), 
                  main = "Original",
                  xlab = "", ylab = "", 
+                 asp = 1,
                  ...) 
   # draw the circle
   theta <- seq(0, 2 * pi, length = 200) 

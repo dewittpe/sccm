@@ -49,6 +49,36 @@ set.seed(42)
 library(sccm)
 ```
 
+# Data Sets
+There are two data sets provided in the `sccm` package.  These data sets are
+provided to help illustrate the conformal mappings.
+
+### `CircleLimitI`
+A circular drawing by M.C. Escher, has been provided as a `data.frame`.  See
+`?CircleLimitI` for more information.
+```{r}
+head(CircleLimitI)
+```
+
+```{r, fig.width = 4, fig.height = 4}
+plot(CircleLimitI[, c("x", "y")], 
+     asp = 1,
+     col = cut(CircleLimitI$value, breaks = 2), 
+     pch = ".", cex = 3) 
+```
+
+### `HexagonalFish`
+Another M.C. Escher drawing, useful for showing the mapping between a polygon
+and the unit disk or another polygon. See `?HexagonalFish` for more details.
+
+```{r, fig.width = 4, fig.height = 4}
+plot(HexagonalFish[, c("x", "y")], 
+     asp = 1,
+     col = cut(HexagonalFish$value, breaks = 2), 
+     pch = ".", cex = 3) 
+```
+
+
 # Coordinate Translation
 There are two functions provided to make it easy to move between Cartesian and
 polar coordinates:
@@ -246,17 +276,107 @@ points(xx, yy,    pch = 16, col = "red")   # on an edge
 
 # Schwarz-Christoffel Conformal Mappings
 
+The Schwarz-Christoffel conformal mapping (SCCM) from the unit disk to a polygon
+are used by three functions:
+
+1. `d2p` for disk to polygon,
+2. `p2p` for polygon to disk (an inverse mapping), and
+3. `p2p` form one polygon to another via an (inverse) mapping from a polygon to
+   the unit disk and a mapping from the disk to the other polygon.
+
+Good references for mathemtatics and the FORTRAN program can be found at:
+
+* Trefethen, Lloyd N. "Numerical computation of the Schwarz-Christoffel transformation." SIAM Journal on Scientific and Statistical Computing 1.1 (1980): 82-102.
+
+* Trefethen, Lloyd N. "Analysis and design of polygonal resistors by conformal mapping." Zeitschrift für angewandte Mathematik und Physik ZAMP 35.5 (1984): 692-704.
+
+* [SCPACK](http://www.netlib.org/conformal/)
+
+
 ## Disk to Polygon
+
+Evaluation of the forward map $w(z)$ for the point $z$ in the unit disk or on
+the circumference thereof, requires the computation of the integral
+
+$$w = w(z_0) + C \int\limits_{z_0}^{z} \prod\limits_{j=1}^{N} \left( 1 - \frac{\zeta}{z_j} \right)^{-\beta_j} \mathrm{d}\zeta.$$
+
+The endpoint $z_0$ may be any point in the closed disk where $w(z_0)$ is known
+and finite.  Additional detain is in Trefethen (1980).
+
+The function `d2p` provides the mapping of `.data` from the unit disk to a given
+polygon, `pg`.  By default, the function will map the unit disk to a square with
+vertices at (-1, 1), (1, -1), (1, 1), and (-1, 1).
+
 ```{r}
-# d2p(
+args(d2p)
 ```
 
-## Polygon to Disk
+To illustrate this mapping we'll use the `CircleLimitI` data set.
+
+The mapping object will contain the `mapped` data, the `polygon` the data was
+mapped into, the original `data` provided
+
 ```{r}
-# p2d(
+circle_to_square <- d2p(CircleLimitI[, c("x", "y")])
+str(circle_to_square, max.level = 1L)
+```
+
+Plotting the results is simple:
+```{r, fig.width = 9, fig.height = 6}
+plot(circle_to_square,
+     col = cut(CircleLimitI$value, breaks = 2), 
+     pch = ".", cex = 3) 
+```
+
+Mapping to any simple polygon is possible:
+```{r, fig.width = 9, fig.height = 6}
+plot(d2p(CircleLimitI[, c("x", "y")], pg = star_pg),
+     col = cut(CircleLimitI$value, breaks = 2), 
+     pch = ".", cex = 3) 
+```
+
+Mapping the unit disk to the square and star shapes viewed with color disks:
+```{r, fig.width = 9, fig.height = 6}
+color_disk <- 
+  Reduce(rbind,
+    c(
+      mapply(function(r, theta) {cbind(sccm::polar2cartesian(r, theta), r)},
+           r = seq(0.1, 0.9, by = 0.1), 
+           MoreArgs = list(theta = seq(0, 2 * pi, length = 100L)),
+           SIMPLIFY = FALSE),
+      mapply(function(r, theta) {cbind(sccm::polar2cartesian(r, theta), r)},
+             theta = seq(0, 2, by = 0.25) * pi,
+             MoreArgs = list(r = seq(0, 0.99, length = 20L)),
+             SIMPLIFY = FALSE)
+      ))
+
+color_disk_squared <- sccm::d2p(color_disk[, 1:2])
+color_disk_stared  <- sccm::d2p(color_disk[, 1:2],
+                                pg = sccm::polygon(star))
+
+plot(color_disk_squared, col = cut(color_disk[, 3], breaks = 6), pch = ".", cex = 3)
+plot(color_disk_stared,  col = cut(color_disk[, 3], breaks = 6), pch = ".", cex = 3)
+```
+
+
+## Polygon to Disk
+An inverse mapping taking two arguments, `.data` to map and the polygon
+containing the `.data.`
+```{r, fig.width = 6, fig.height = 4}
+plot(p2d(HexagonalFish[, c("x", "y")]), 
+     col = cut(HexagonalFish$value, breaks = 2), 
+     pch = ".", cex = 3)
 ```
 
 ## Polygon to Polygon
+To map `.data` within polygon `pg1` to another polygon `pg2` use the function
+`p2p`.  Default settings will map `.data` within its convex hull to the square
+with vertices at (-1, 1), (1, -1), (1, 1), and (-1, 1).
+```{r}
+args(p2p)
+```
+
+Some examples:
 ```{r, fig.width = 9, fig.height = 6}
 square_fish <- p2p(HexagonalFish[, 1:2])
 plot(square_fish, col = cut(HexagonalFish[, 3], breaks = 2))

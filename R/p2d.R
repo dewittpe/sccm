@@ -103,6 +103,7 @@ plot.sccm_p2d <- function(x, ...) {
   graphics::plot(x$data, 
                  main = "Original", 
                  xlab = "", ylab = "", 
+                 asp = 1,
                  ...)
   graphics::points(x$polygon$vertices, col = "red", pch = 3)
   graphics::lines(x$polygon$vertices[c(1:nrow(x$polygon$vertices), 1), ], col = "red", pch = 3)

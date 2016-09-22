@@ -9,6 +9,6 @@ test_that("is_anticlockwise",
             expect_true(is_anticlockwise(ch))
             expect_false(is_anticlockwise(polygon(c(-1, -1, 1, 1), c(-1, 1, 1, -1))))  # clockwise square
             expect_true(is_anticlockwise(polygon(c(-1, -1, 1, 1), c(1, -1, -1, 1))))  # anti-clockwise square
-            expect_equal(is_anticlockwise(star_pg), logical(0))
+            expect_equal(suppressWarnings(is_anticlockwise(star_pg)), logical(0))
             expect_warning(is_anticlockwise(star_pg), "Polygon is not a convex hull")
           })

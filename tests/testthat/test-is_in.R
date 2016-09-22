@@ -14,10 +14,9 @@ test_that("Points are in, out, on",
 
             xcoords <- c(-0.4, 0.5, xx)
             ycoords <- c(0.1, -0.6, yy)
+            summ <- summary(is_in(xcoords, ycoords, star_pg))
 
-            expect_equal(summary(is_in(xcoords, ycoords, star_pg)),
-                         structure(list(x = c(-0.4, 0.5, 0.75), y = c(0.1, -0.6, 0.123382376053299), is_in = structure(c(1L, 0L, -1L), x = c(-0.4, 0.5, 0.75), y = structure(c(0.1, -0.6, 0.123382376053299), .Names = c("", "", "x")), class = c("sccm_is_in", "integer")), label = c("Inside", "Outside", "On an Edge")), .Names = c("x", "y", "is_in", "label"), row.names = c(NA, -3L), class = "data.frame")
-                         )
-
+            expect_equivalent(as.numeric(summ$is_in), c(1, 0, -1))
+            expect_equivalent(as.vector(summ$label), c("Inside", "Outside", "On an Edge")) 
           })
 

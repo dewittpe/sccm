@@ -2,6 +2,7 @@
 
 [![Project Status: Active – The project has reached a stable, usable state and is being actively developed.](http://www.repostatus.org/badges/latest/active.svg)](http://www.repostatus.org/#active)
 [![Build Status](https://travis-ci.org/dewittpe/sccm.svg?branch=master)](https://travis-ci.org/dewittpe/sccm)
+[![Coverage Status](https://img.shields.io/codecov/c/github/dewittpe/sccm/master.svg)](https://codecov.io/github/dewittpe/sccm?branch=master)
 
 An R package Providing a conformal mapping of one 2D polygon to a rectangular
 region via the Schwarz-Christoffel theorem.

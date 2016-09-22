@@ -260,10 +260,10 @@ yy <- (diff(star_pg$vertices[1:2, 2]) / diff(star_pg$vertices[1:2, 1])) * (xx - 
 
 is_in(-0.4, 0.1, star_pg) # inside
 is_in(0.5, -0.6, star_pg) # outside
-is_in(0.5, yy, star_pg)   # on an edge
+is_in(xx, yy, star_pg)    # on an edge
 
 # send a set of points to is_in
-xcoords <- c(-0.4, 0.5, 0.5)
+xcoords <- c(-0.4, 0.5, xx)
 ycoords <- c(0.1, -0.6, yy)
 is_in(xcoords, ycoords, star_pg)
 summary(is_in(xcoords, ycoords, star_pg))
@@ -280,7 +280,7 @@ The Schwarz-Christoffel conformal mapping (SCCM) from the unit disk to a polygon
 are used by three functions:
 
 1. `d2p` for disk to polygon,
-2. `p2p` for polygon to disk (an inverse mapping), and
+2. `p2d` for polygon to disk (an inverse mapping), and
 3. `p2p` form one polygon to another via an (inverse) mapping from a polygon to
    the unit disk and a mapping from the disk to the other polygon.
 

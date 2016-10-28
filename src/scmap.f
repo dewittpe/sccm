@@ -6,7 +6,7 @@ c compute nodes and weights for parameter problem:
       call qinit(n,betam,nptsq,qwork)
 c
 c solve parameter problem:
-      iprint = 0
+      iprint = -2
       iguess = 0
       tol = 10.**(-nptsq-1)
       call scsolv(iprint,iguess,tol,errest,n,c,z,

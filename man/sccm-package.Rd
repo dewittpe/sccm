@@ -27,9 +27,7 @@ construction of the convex hulls, the later provided the insight into the
 FORTRAN interface.  The \code{sccm} package provides a subset of the tools
 provided by these two packages, and does so with a different API.
 }
-\author{
-Peter DeWitt
-}
+
 \references{
 SCPACK: \url{http://www.netlib.org/conformal/}
 
@@ -39,4 +37,6 @@ conformal: \url{https://r-forge.r-project.org/R/?group_id=973}
 
 Trefethen, Lloyd N. "Analysis and design of polygonal resistors by conformal mapping." Zeitschrift für angewandte Mathematik und Physik ZAMP 35.5 (1984): 692-704.
 }
-
+\author{
+Peter DeWitt
+}

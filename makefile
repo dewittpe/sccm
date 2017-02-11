@@ -24,6 +24,13 @@ $(PKG_NAME)_$(PKG_VERSION).tar.gz: DESCRIPTION $(RFILES) $(SRC) $(DATA) $(VIGNET
 	R -e "devtools::document()"
 	R CMD build .
 
+tarnovign: DESCRIPTION $(RFILES) $(SRC) $(DATA)
+	R CMD build --no-build-vignettes .
+
+installnovign: tarnovign
+	R CMD INSTALL $(PKG_NAME)_$(PKG_VERSION).tar.gz
+ 
+
 check: $(PKG_NAME)_$(PKG_VERSION).tar.gz
 	R CMD check $(PKG_NAME)_$(PKG_VERSION).tar.gz
 

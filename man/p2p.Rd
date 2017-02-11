@@ -58,4 +58,3 @@ plot(trans)
 \seealso{
 \code{\link{scmap}} \code{\link{d2p}} \code{\link{p2d}}
 }
-

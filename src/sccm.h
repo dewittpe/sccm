@@ -25,6 +25,7 @@ struct point {
 struct convexhull {
   std::vector<point> hull;  // vertices of the convex hull
   std::vector<double> beta;  // exterior angles
+  std::vector<double> gamma;  // interior angles
 
   convexhull(std::vector<point>& _v); 
 
@@ -48,5 +49,6 @@ double crossproduct(const point& origin, const point& A, const point& B);
 double dotproduct(const point& origin, const point& A, const point& B);
 double norm(const point& origin, const point& A);
 double exterior_angle(const point& origin, const point& A, const point& B);
+double interior_angle(const point& origin, const point& A, const point& B);
 
 #endif

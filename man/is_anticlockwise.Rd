@@ -27,4 +27,3 @@ is_anticlockwise(square3)
 \code{\link{polygon}} \code{\link{convex_hull}}
 \code{\link{is_convex_hull}}
 }
-

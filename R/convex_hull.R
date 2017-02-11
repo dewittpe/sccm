@@ -24,6 +24,8 @@
 #' \item{data}{a matrix of the data provided}
 #' \item{beta}{a numeric vector of the exterior angles for each of the
 #' vertices.}
+#' \item{gamma}{a numeric vector of the interior angles for each of the
+#' vertices.}
 #' \item{indices}{a numeric vector of the row indices from \code{x}
 #' corresponding to the data values found to be the vertices of the convex
 #' hull.}

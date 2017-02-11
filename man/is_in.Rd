@@ -64,4 +64,3 @@ text(points_to_test, pos = 4)
 \seealso{
 \code{\link{polygon}} \code{link{convex_hull}}
 }
-

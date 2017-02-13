@@ -62,4 +62,3 @@ plot(sccm::polygon(star))
 
 \code{\link{polar2cartesian}} \code{link{convex_hull}}
 }
-

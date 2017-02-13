@@ -36,4 +36,3 @@ is_convex_hull(polygon(star))
 \code{\link{polygon}} \code{\link{convex_hull}}
 \code{\link{is_anticlockwise}}
 }
-

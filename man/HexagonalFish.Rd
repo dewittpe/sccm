@@ -26,4 +26,3 @@ summary(HexagonalFish)
 
 }
 \keyword{datasets}
-

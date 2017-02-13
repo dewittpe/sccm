@@ -37,4 +37,3 @@ ggplot2::coord_equal(ratio = 1)
 
 }
 \keyword{datasets}
-

@@ -22,4 +22,3 @@ an object
 Generates the Schwarz-Christoffel mapping from the unit disk to the provided
 2D polygon.
 }
-

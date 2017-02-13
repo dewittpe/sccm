@@ -75,4 +75,3 @@ plot(color_disk_squared, col = cut(color_disk[, 3], breaks = 6))
 \seealso{
 \code{\link{scmap}} \code{\link{p2p}} \code{\link{p2d}}
 }
-

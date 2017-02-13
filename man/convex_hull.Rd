@@ -50,4 +50,3 @@ plot(ch)
 \code{\link{polygon}} \code{\link{p2d}} \code{\link{d2p}}
 \code{\link{p2p}}
 }
-

@@ -1,64 +1,30 @@
 #include <Rcpp.h>
 #include "sccm.h"
 
-// left_of tests if a point v is left, on, or right of the line defined by the
-// poinsts a and b.
-//
-// input  three vertices v, a, and b.
-//
-// return > 0 if v is left of the line defined by points a and b
-//        = 0 if v is on the line defined by points a and b
-//        < 0 if v is right of the line defined by points a and b
-int left_of(const point& v, const point& a, const point& b) {
-
-  double tol = 1e-32;
-
-  double lf = (b.x - a.x) * (v.y - a.y) - (v.x -  a.x) * (b.y - a.y); 
-
-  if (std::abs(lf) < tol) {
-    return 0;
-  } else if (lf < 0) { 
-    return -1;
-  } else { 
-    return 1;
-  } 
-} 
-
 // winding_number: 
 //
 // input:  a point and a vector of vertices defining the polygon
 //
-// return: the winding number.  >
+// return: the winding number.
+//
+// code adapted from an answer on stackoverflow
+// http://stackoverflow.com/a/2922778/1104685
 //
 int winding_number(const point& p, std::vector<point>& v) {
-  int wn = 0;
-  int lf;
+  int i, j, wn = 0;
 
-  for (int i = 0; i < v.size() - 1; ++i) {
-    lf = left_of(p, v[i], v[i+1]);
+  for (i = 0, j = v.size() - 1; i < v.size(); j = i++) {
+    if ( ((v[i].y > p.y) != (v[j].y > p.y)) &&
+        (p.x < (v[j].x - v[i].x) * (p.y - v[i].y) / (v[j].y - v[i].y) + v[i].x) )
+      wn = !wn;
+  }
 
-    if (lf == 0) { 
-      wn = -1;
-      i = v.size();
-    } else if (v[i].y <= p.y && v[i+1].y > p.y) {
-      if (lf > 0) {
-        ++ wn;
-      }
-    } else {
-      if (v[i+1].y <= p.y) { 
-        if (lf < 0) { 
-          -- wn;
-        }
-      }
-    }
-  } 
   return wn;
 }
 
 
 // return 1 if (x, y) is on the interior of the polygon
 // return 0 if (x, y) is on the exterior of the polygon
-// return -1 if (x, y) is on an edge of the polygon.
 //
 // [[Rcpp::export]]
 Rcpp::IntegerVector is_in_cpp(Rcpp::NumericVector x, Rcpp::NumericVector y, Rcpp::NumericMatrix v) {
@@ -83,3 +49,4 @@ Rcpp::IntegerVector is_in_cpp(Rcpp::NumericVector x, Rcpp::NumericVector y, Rcpp
 
   return out;
 }
+

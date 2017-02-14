@@ -10,13 +10,13 @@ test_that("Points are in, out, on",
 
             expect_equivalent(as.integer(is_in(-0.4, 0.1, star_pg)), 1) # inside
             expect_equivalent(as.integer(is_in(0.5, -0.6, star_pg)), 0) # outside
-            expect_equivalent(as.integer(is_in(xx, yy, star_pg)), -1)   # on an edge
+            expect_equivalent(as.integer(is_in(xx, yy, star_pg)), 0)    # on an edge
 
             xcoords <- c(-0.4, 0.5, xx)
             ycoords <- c(0.1, -0.6, yy)
             summ <- summary(is_in(xcoords, ycoords, star_pg))
 
-            expect_equivalent(as.numeric(summ$is_in), c(1, 0, -1))
-            expect_equivalent(as.vector(summ$label), c("Inside", "Outside", "On an Edge")) 
+            expect_equivalent(as.numeric(summ$is_in), c(1, 0, 0))
+            expect_equivalent(as.vector(summ$label), c("Inside", "Outside/On Edge", "Outside/On Edge")) 
           })
 

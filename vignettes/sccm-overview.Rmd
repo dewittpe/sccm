@@ -1,5 +1,5 @@
 ---
-title: "Schwarz-Christoffel Conformal Mappings"
+title: "Schwarz-Christoffel Conformal Mappings: Package Overview"
 author: "Peter DeWitt"
 date: "`r Sys.Date()`"
 output: 
@@ -7,7 +7,7 @@ output:
     toc: true
     depth: 2
 vignette: >
-  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteIndexEntry{Schwarz-Christoffel Conformal Mappings: Package Overview}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---

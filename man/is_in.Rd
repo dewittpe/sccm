@@ -14,10 +14,9 @@ is_in(x, y, pg)
 \item{pg}{a \code{sccm_pg} or \code{sccm_ch} object}
 }
 \value{
-an integer with value of -1, 0, or 1.
+an integer with value of 0, or 1.
 \describe{
-\item{-1}{(x, y) is on an edge of the polygon}
-\item{0}{(x, y) is outside of the polygon}
+\item{0}{(x, y) is on edge or outside of the polygon}
 \item{1}{(x, y) is inside of the polygon}
 }
 }

@@ -3,6 +3,17 @@
 #' Generates the Schwarz-Christoffel mapping from the unit disk to the provided
 #' 2D polygon.
 #'
+#' These functions might be used later to allow end users to have more control
+#' over the mmappings.  Until then, it would be best for end users to use
+#' \code{\link{d2p}} for disk to polygon,
+#' \code{\link{p2d}} for polygon to disk, and
+#' \code{\link{p2p}} for mapping one polygon to another via a disk.
+#'
+#' @seealso
+#' \code{\link{d2p}} for disk to polygon,
+#' \code{\link{p2d}} for polygon to disk, and
+#' \code{\link{p2p}} for mapping one polygon to another via a disk.
+#'
 #' @param x \code{sccm_ch} or \code{sccm_pg}, object.
 #' @param wc the center of the polygon, i.e., where the origin will be mapped
 #' to.  The default is c(mean(x), mean(y))

@@ -14,6 +14,13 @@
 #' values in the u and/or v space between -1, and 1.
 #' @param n number of data points to use on each margin of the grid.
 #'
+#' @return a \code{sccm_cg} object. A list with two elements, the \code{mapping}
+#' is the result of a call to \code{\link{p2p}}, and \code{plotting_data}, a
+#' \code{data.frame} which would be easy to use to if you want to plot the
+#' result yourself instead of using the \code{plot.sccm_cg} method.
+#'
+#' @example examples/conformal_grid.R
+#'
 #' @export
 conformal_grid <- function(x, ubreaks = 7, vbreaks = 7, n = 100) {
   UseMethod("conformal_grid")
@@ -23,14 +30,14 @@ conformal_grid <- function(x, ubreaks = 7, vbreaks = 7, n = 100) {
 conformal_grid.sccm_pg <- function(x, ubreaks = 7, vbreaks = 7, n = 100) {
   if (length(ubreaks) > 1) {
     ubrksok <- all(ubreaks > -1 & ubreaks < 1)
-  } else { 
+  } else {
     ubrksok <- ubreaks > 0
     ubreaks <- -1 + 2 * seq(1, ubreaks, by = 1) / (ubreaks + 1)
   }
 
   if (length(vbreaks) > 1) {
     vbrksok <- all(vbreaks > -1 & vbreaks < 1)
-  } else { 
+  } else {
     vbrksok <- vbreaks > 0
     vbreaks <- -1 + 2 * seq(1, vbreaks, by = 1) / (vbreaks + 1)
   }
@@ -41,14 +48,14 @@ conformal_grid.sccm_pg <- function(x, ubreaks = 7, vbreaks = 7, n = 100) {
 
   .data <- rbind(dplyr::mutate_(expand.grid(u = ubreaks,
                                            v = seq(-0.999, 0.999, length = n)),
-                                .dots = list("grp" ~ paste("u", u))),
+                                .dots = list(grp = ~ paste("u", u))),
                  dplyr::mutate_(expand.grid(u = seq(-0.999, 0.999, length = n),
                                            v = vbreaks),
-                               .dots = list("grp" ~ paste("v", v))))
+                               .dots = list(grp = ~ paste("v", v))))
 
   mapping <- p2p(.data[, 1:2],
                  pg1 = polygon(c(-1, 1, 1, -1), c(-1, -1, 1, 1)),
-                 pg2 = x) 
+                 pg2 = x)
 
   plotting_data <-
     dplyr::mutate(.data,
@@ -64,7 +71,7 @@ conformal_grid.sccm_pg <- function(x, ubreaks = 7, vbreaks = 7, n = 100) {
 }
 
 #' @export
-plot.sccm_cg <- function(x, ...) { 
+plot.sccm_cg <- function(x, ...) {
   plot(x$mapping$pg2, ...)
   for (grp in unique(x$plotting_data$grp)) {
     lines(x$plotting_data$x[x$plotting_data$grp == grp], x$plotting_data$y[x$plotting_data$grp == grp])

@@ -16,6 +16,12 @@ values in the u and/or v space between -1, and 1.}
 
 \item{n}{number of data points to use on each margin of the grid.}
 }
+\value{
+a \code{sccm_cg} object. A list with two elements, the \code{mapping}
+is the result of a call to \code{\link{p2p}}, and \code{plotting_data}, a
+\code{data.frame} which would be easy to use to if you want to plot the
+result yourself instead of using the \code{plot.sccm_cg} method.
+}
 \description{
 Given a polygon, find the orthogonal grid from a square projected into the
 polygon.
@@ -24,4 +30,19 @@ polygon.
 Given a orthogonal grid in (u, v) space, \code{conformal_grid} finds and
 allows one to plot the mapped grid into the polygon in (x, y) space.  The (u,
 v) space is a square with vertices at (-1, -1), (1, -1), (1, 1), and (-1, 1).
+}
+\examples{
+# Build a star
+star <- 
+  rbind(polar2cartesian(1.0, seq(0, 1.6, by = 0.4) * pi),
+        polar2cartesian(0.5, seq(0.2, 1.8, by = 0.4) * pi)) 
+star <- star[rep(1:5, each = 2) + rep(c(0, 5), times = 5), ]
+
+
+# generate, and plot, the grid, that would be orthogonal in the (u,v) space, in
+# the (x,y) space of the star.
+plot(conformal_grid(polygon(star), 15, 11))
+
+# rotate the star
+plot(conformal_grid(rotate(polygon(star), times = 3), 15, 11))
 }

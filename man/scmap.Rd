@@ -22,3 +22,15 @@ an object
 Generates the Schwarz-Christoffel mapping from the unit disk to the provided
 2D polygon.
 }
+\details{
+These functions might be used later to allow end users to have more control
+over the mmappings.  Until then, it would be best for end users to use
+\code{\link{d2p}} for disk to polygon,
+\code{\link{p2d}} for polygon to disk, and
+\code{\link{p2p}} for mapping one polygon to another via a disk.
+}
+\seealso{
+\code{\link{d2p}} for disk to polygon,
+\code{\link{p2d}} for polygon to disk, and
+\code{\link{p2p}} for mapping one polygon to another via a disk.
+}

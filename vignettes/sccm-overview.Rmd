@@ -33,7 +33,7 @@ The Schwarz-Christoffel conformal mappings are well described in
 
 * Trefethen, Lloyd N. "Analysis and design of polygonal resistors by conformal mapping." Zeitschrift für angewandte Mathematik und Physik ZAMP 35.5 (1984): 692-704.
 
-Corresponding FORTRAN libraries are vailable from 
+Corresponding FORTRAN libraries are available from 
 [SCPACK: http://www.netlib.org/conformal/](http://www.netlib.org/conformal/).
 
 The particular set of functions provided by the `sccm` package are a minimum set
@@ -273,6 +273,9 @@ points(-0.4, 0.1, pch = 16, col = "black") # inside
 points(0.5, -0.6, pch = 16, col = "blue")  # outside
 points(xx, yy,    pch = 16, col = "red")   # on an edge 
 ```
+
+## `rotate`
+Function rotates the vertices of a polygon/hull...
 
 # Schwarz-Christoffel Conformal Mappings
 

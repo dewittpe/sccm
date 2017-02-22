@@ -38,6 +38,7 @@
 #'
 #' @useDynLib sccm
 #' @importFrom Rcpp sourceCpp
+#' @importFrom graphics plot lines
 #'
 #' @docType package
 #' @name sccm-package

@@ -39,12 +39,12 @@ conformal_grid.sccm_pg <- function(x, ubreaks = 7, vbreaks = 7, n = 100) {
     stop("ubreaks or vbreaks are nonsensical.")
   }
 
-  .data <- rbind(dplyr::mutate(expand.grid(u = ubreaks,
+  .data <- rbind(dplyr::mutate_(expand.grid(u = ubreaks,
                                            v = seq(-0.999, 0.999, length = n)),
-                               grp = paste("u", u)),
-                 dplyr::mutate(expand.grid(u = seq(-0.999, 0.999, length = n),
+                                .dots = list("grp" ~ paste("u", u))),
+                 dplyr::mutate_(expand.grid(u = seq(-0.999, 0.999, length = n),
                                            v = vbreaks),
-                               grp = paste("v", v)))
+                               .dots = list("grp" ~ paste("v", v))))
 
   mapping <- p2p(.data[, 1:2],
                  pg1 = polygon(c(-1, 1, 1, -1), c(-1, -1, 1, 1)),

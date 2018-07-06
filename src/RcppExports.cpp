@@ -8,7 +8,7 @@ using namespace Rcpp;
 
 // polar2cartesian
 Rcpp::NumericMatrix polar2cartesian(arma::vec r, arma::vec theta);
-RcppExport SEXP sccm_polar2cartesian(SEXP rSEXP, SEXP thetaSEXP) {
+RcppExport SEXP _sccm_polar2cartesian(SEXP rSEXP, SEXP thetaSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -20,7 +20,7 @@ END_RCPP
 }
 // cartesian2polar
 Rcpp::NumericMatrix cartesian2polar(arma::vec x, arma::vec y);
-RcppExport SEXP sccm_cartesian2polar(SEXP xSEXP, SEXP ySEXP) {
+RcppExport SEXP _sccm_cartesian2polar(SEXP xSEXP, SEXP ySEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -32,7 +32,7 @@ END_RCPP
 }
 // convex_hull_cpp
 Rcpp::List convex_hull_cpp(Rcpp::NumericVector x, Rcpp::NumericVector y);
-RcppExport SEXP sccm_convex_hull_cpp(SEXP xSEXP, SEXP ySEXP) {
+RcppExport SEXP _sccm_convex_hull_cpp(SEXP xSEXP, SEXP ySEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -44,7 +44,7 @@ END_RCPP
 }
 // is_in_cpp
 Rcpp::IntegerVector is_in_cpp(Rcpp::NumericVector x, Rcpp::NumericVector y, Rcpp::NumericMatrix v);
-RcppExport SEXP sccm_is_in_cpp(SEXP xSEXP, SEXP ySEXP, SEXP vSEXP) {
+RcppExport SEXP _sccm_is_in_cpp(SEXP xSEXP, SEXP ySEXP, SEXP vSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -57,7 +57,7 @@ END_RCPP
 }
 // polygon_cpp
 Rcpp::List polygon_cpp(Rcpp::NumericVector x, Rcpp::NumericVector y);
-RcppExport SEXP sccm_polygon_cpp(SEXP xSEXP, SEXP ySEXP) {
+RcppExport SEXP _sccm_polygon_cpp(SEXP xSEXP, SEXP ySEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -66,4 +66,25 @@ BEGIN_RCPP
     rcpp_result_gen = Rcpp::wrap(polygon_cpp(x, y));
     return rcpp_result_gen;
 END_RCPP
+}
+
+RcppExport void d2p_(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
+RcppExport void p2d_(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
+RcppExport void scmap_(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
+
+static const R_CallMethodDef CallEntries[] = {
+    {"_sccm_polar2cartesian", (DL_FUNC) &_sccm_polar2cartesian, 2},
+    {"_sccm_cartesian2polar", (DL_FUNC) &_sccm_cartesian2polar, 2},
+    {"_sccm_convex_hull_cpp", (DL_FUNC) &_sccm_convex_hull_cpp, 2},
+    {"_sccm_is_in_cpp", (DL_FUNC) &_sccm_is_in_cpp, 3},
+    {"_sccm_polygon_cpp", (DL_FUNC) &_sccm_polygon_cpp, 2},
+    {"d2p_",   (DL_FUNC) &d2p_,   11},
+    {"p2d_",   (DL_FUNC) &p2d_,   11},
+    {"scmap_", (DL_FUNC) &scmap_, 10},
+    {NULL, NULL, 0}
+};
+
+RcppExport void R_init_sccm(DllInfo *dll) {
+    R_registerRoutines(dll, NULL, CallEntries, NULL, NULL);
+    R_useDynamicSymbols(dll, FALSE);
 }

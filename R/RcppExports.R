@@ -10,7 +10,7 @@
 #' @export
 #' @rdname polar2cartesian
 polar2cartesian <- function(r, theta) {
-    .Call('sccm_polar2cartesian', PACKAGE = 'sccm', r, theta)
+    .Call('_sccm_polar2cartesian', PACKAGE = 'sccm', r, theta)
 }
 
 #' @param x a numeric vector of x coordinates
@@ -21,18 +21,18 @@ polar2cartesian <- function(r, theta) {
 #' @export
 #' @rdname polar2cartesian
 cartesian2polar <- function(x, y) {
-    .Call('sccm_cartesian2polar', PACKAGE = 'sccm', x, y)
+    .Call('_sccm_cartesian2polar', PACKAGE = 'sccm', x, y)
 }
 
 convex_hull_cpp <- function(x, y) {
-    .Call('sccm_convex_hull_cpp', PACKAGE = 'sccm', x, y)
+    .Call('_sccm_convex_hull_cpp', PACKAGE = 'sccm', x, y)
 }
 
 is_in_cpp <- function(x, y, v) {
-    .Call('sccm_is_in_cpp', PACKAGE = 'sccm', x, y, v)
+    .Call('_sccm_is_in_cpp', PACKAGE = 'sccm', x, y, v)
 }
 
 polygon_cpp <- function(x, y) {
-    .Call('sccm_polygon_cpp', PACKAGE = 'sccm', x, y)
+    .Call('_sccm_polygon_cpp', PACKAGE = 'sccm', x, y)
 }
 

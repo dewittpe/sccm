@@ -57,21 +57,24 @@ polygon <- function(x, y) {
 #' @export
 polygon.default <- function(x, y) { 
   x <- as.matrix(x)
-  out <- .Call('sccm_polygon_cpp', PACKAGE = 'sccm', x[, 1], x[, 2])
+  # out <- .Call('sccm_polygon_cpp', PACKAGE = 'sccm', x[, 1], x[, 2])
+  out <- polygon_cpp(x[, 1], x[, 2])
   class(out) <- c("sccm_pg", class(out))
   out
 }
 
 #' @export
 polygon.numeric <- function(x, y) { 
-  out <- .Call('sccm_polygon_cpp', PACKAGE = 'sccm', x, y)
+  # out <- .Call('sccm_polygon_cpp', PACKAGE = 'sccm', x, y)
+  out <- polygon_cpp(x, y)
   class(out) <- c("sccm_pg", class(out))
   out
 }
 
 #' @export
 polygon.matrix <- function(x, y) { 
-  out <- .Call('sccm_polygon_cpp', PACKAGE = 'sccm', x[, 1], x[, 2])
+  # out <- .Call('sccm_polygon_cpp', PACKAGE = 'sccm', x[, 1], x[, 2])
+  out <- polygon_cpp(x[, 1], x[, 2])
   class(out) <- c("sccm_pg", class(out))
   out
 }

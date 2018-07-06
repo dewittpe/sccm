@@ -53,7 +53,8 @@
 #'
 #' @export
 is_in <- function(x, y, pg) {
-  out <- .Call("sccm_is_in_cpp", PACKAGE = "sccm", x, y, pg$vertices) 
+  # out <- .Call("sccm_is_in_cpp", PACKAGE = "sccm", x, y, pg$vertices) 
+  out <- is_in_cpp(x, y, pg$vertices)
   attr(out, "x") <- x
   attr(out, "y") <- y
   class(out) <- c("sccm_is_in", class(out))

@@ -1,28 +1,31 @@
-PKG_VERSION = $(shell awk '/^Version:/{print $$2}' DESCRIPTION)
-PKG_NAME    = $(shell awk '/^Package:/{print $$2}' DESCRIPTION)
+PKG_ROOT    = .
+PKG_VERSION = $(shell gawk '/^Version:/{print $$2}' $(PKG_ROOT)/DESCRIPTION)
+PKG_NAME    = $(shell gawk '/^Package:/{print $$2}' $(PKG_ROOT)/DESCRIPTION)
 
-.PHONY: data vignettes
+CRAN = "https://cran.rstudio.com"
+BIOC = "https://bioconductor.org/packages/3.4/bioc"
 
-DATA      = $(wildcard data/*.rda)
-SRC       = $(wildcard src/*.cpp)
-RFILES    = $(wildcard R/*.R)
-MANS      = $(wildcard man/*.Rd)
-VIGNETTES = $(wildcard vignettes/*.Rmd)
+SRC       = $(wildcard $(PKG_ROOT)/src/*.cpp)
+RFILES    = $(wildcard $(PKG_ROOT)/R/*.R)
+EXAMPLES  = $(wildcard $(PKG_ROOT)/examples/*.R)
+TESTS     = $(wildcard $(PKG_ROOT)/tests/testthat/*.R)
+VIGNETTES = $(wildcard $(PKG_ROOT)/vignettes/*.R)
+RAWDATAR  = $(wildcard $(PKG_ROOT)/data-raw/*.R)
+
+.PHONY: all dev_deps document check install clean
 
 all: $(PKG_NAME)_$(PKG_VERSION).tar.gz
 
-data/CircleLimitI.rda: data-raw/mcescher.R
-	Rscript data-raw/mcescher.R
+dev_deps: $(PKG_ROOT)/DESCRIPTION
+	Rscript --vanilla --quiet -e "options(repo = c('$(CRAN)', '$(BIOC)')); devtools::install_dev_deps()"
 
-data/HexagonalFish.rda: data-raw/hexagonal-fish.R
-	Rscript data-raw/hexagonal-fish.R
+document: dev_deps $(RFILES) $(SRC) $(EXAMPLES) $(RAWDATAR) $(VIGNETTES)
+	if [ -d "$(PKG_ROOT)/data-raw" ]; then $(MAKE) -C $(PKG_ROOT)/data-raw/; fi
+	Rscript --vanilla --quiet -e "devtools::document('$(PKG_ROOT)')"
+	if [ -e "$(PKG_ROOT)/vignettes/makefile" ]; then $(MAKE) -C $(PKG_ROOT)/vignettes/; fi
 
-vignettes: vignettes/sccm-overview.Rmd
-	R -e "devtools::build_vignettes()" 
-
-$(PKG_NAME)_$(PKG_VERSION).tar.gz: DESCRIPTION $(RFILES) $(SRC) $(DATA) $(VIGNETTES)
-	R -e "devtools::document()"
-	R CMD build .
+$(PKG_NAME)_$(PKG_VERSION).tar.gz: document $(TESTS)
+	R CMD build --no-resave-data --md5 $(build-options) $(PKG_ROOT)
 
 check: $(PKG_NAME)_$(PKG_VERSION).tar.gz
 	R CMD check $(PKG_NAME)_$(PKG_VERSION).tar.gz
@@ -33,5 +36,5 @@ install: $(PKG_NAME)_$(PKG_VERSION).tar.gz
 clean:
 	/bin/rm -f  src/*.o
 	/bin/rm -f  src/*.so
-	/bin/rm -f  $(PKG_NAME)_*.tar.gz
+	/bin/rm -f  $(PKG_NAME)_$(PKG_VERSION).tar.gz
 	/bin/rm -rf $(PKG_NAME).Rcheck

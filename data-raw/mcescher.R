@@ -3,13 +3,15 @@
 # provide some M.C. Escher images for in the examples of the conformal mappings.
 # The images used are considered "free use" from wikiart.org
 
-library(imager)
-library(dplyr)
-library(tidyr)
+library(magrittr)
+loadNamespace('imager')
+loadNamespace('dplyr')
+loadNamespace('tidyr')
+loadNamespace('devtools')
 
 # Circle Limit I
 CircleLimitI <- 
-  imager::load.image(file = "data-raw/circle-limit-i-small.jpg") %>%
+  imager::load.image(file = "./circle-limit-i-small.jpg") %>%
   as.data.frame  %>%
   dplyr::select(-cc) %>%
   dplyr::rename(pixel_x = x, pixel_y = y) %>%

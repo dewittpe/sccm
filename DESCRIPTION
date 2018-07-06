@@ -18,6 +18,7 @@ Imports:
     dplyr,
     Rcpp
 Suggests:
+    imager,
     knitr,
     rmarkdown,
     testthat,

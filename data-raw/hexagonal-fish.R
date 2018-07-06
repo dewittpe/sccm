@@ -1,11 +1,12 @@
-library(imager)
-library(dplyr)
-library(tidyr)
-# library(sccm)
-devtools::load_all("~/dissertation/sccm")
+library(magrittr)
+loadNamespace('imager')
+loadNamespace('dplyr')
+loadNamespace('tidyr')
+loadNamespace('sccm')
+loadNamespace('devtools')
 
 HexagonalFish <- 
-  imager::load.image(file = "data-raw/hexagonal-fish.jpg") %>%
+  imager::load.image(file = "./hexagonal-fish.jpg") %>%
   as.data.frame  %>%
   dplyr::select(-cc) %>%
   dplyr::group_by(x, y) %>%
@@ -24,13 +25,13 @@ bndry <-
         ) 
 # points(bndry, pch = 16, col = 'blue')
 bndry_pg <- sccm::polygon(bndry)
-is_convex_hull(bndry_pg)
-is_anticlockwise(bndry_pg)
+sccm::is_convex_hull(bndry_pg)
+sccm::is_anticlockwise(bndry_pg)
 
 ### # Remove points outside of the bndry_pg
 HexagonalFish <-
   dplyr::bind_rows(
-                   dplyr::filter(HexagonalFish, is_in(x, y, bndry_pg) == 1) %>% dplyr::filter(x > 27),
+                   dplyr::filter(HexagonalFish, sccm::is_in(x, y, bndry_pg) == 1) %>% dplyr::filter(x > 27),
                    dplyr::filter(HexagonalFish, x %in% bndry[1, 1],  y %in% bndry[1, 2]),
                    dplyr::filter(HexagonalFish, x %in% bndry[2, 1],  y %in% bndry[2, 2]),
                    dplyr::filter(HexagonalFish, x %in% bndry[3, 1],  y %in% bndry[3, 2]),
@@ -38,7 +39,7 @@ HexagonalFish <-
                    dplyr::filter(HexagonalFish, x %in% bndry[5, 1],  y %in% bndry[5, 2]),
                    dplyr::filter(HexagonalFish, x %in% bndry[6, 1],  y %in% bndry[6, 2]))
 
-ch <- convex_hull(HexagonalFish)
+ch <- sccm::convex_hull(HexagonalFish)
 plot(ch, pch = ".", col = cut(HexagonalFish$value, breaks = 2))
 points(bndry, pch = 16, col = 'blue')
 

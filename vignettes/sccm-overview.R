@@ -1,0 +1,375 @@
+#'---
+#'title: "Schwarz-Christoffel Conformal Mappings: Package Overview"
+#'author: "Peter DeWitt"
+#'date: "`r Sys.Date()`"
+#'output:
+#'  rmarkdown::html_vignette:
+#'    toc: true
+#'    depth: 2
+#'vignette: >
+#'  %\VignetteIndexEntry{Schwarz-Christoffel Conformal Mappings: Package Overview}
+#'  %\VignetteEngine{knitr::rmarkdown}
+#'  %\VignetteEncoding{UTF-8}
+#'---
+#'
+#+ include = FALSE
+library(sccm)
+knitr::opts_chunk$set(collapse = TRUE)
+
+#'
+#'The `sccm` package provides some tools for working with two-dimensional
+#'polygons, especially convex hulls, and mapping the data within these
+#'polygons/convex hulls to other polygons via Schwarz-Christoffel conformal
+#'mappings.
+#'
+#'*Acknowledgements:*  I would be remiss to not acknowledge two other R packages
+#'which greatly influenced the design of the `sccm` package.
+#'
+#'* [`conformal`: https://r-forge.r-project.org/R/?group_id=973)](https://r-forge.r-project.org/R/?group_id=973) by Nick Ellis
+#'* [`contoureR`: https://cran.r-project.org/web/packages/contoureR/index.html](https://cran.r-project.org/web/packages/contoureR/index.html) by
+#'  Nicholas Hamilton.
+#'
+#'The Schwarz-Christoffel conformal mappings are well described in
+#'
+#'* Trefethen, Lloyd N. "Analysis and design of polygonal resistors by conformal mapping." Zeitschrift für angewandte Mathematik und Physik ZAMP 35.5 (1984): 692-704.
+#'
+#'Corresponding FORTRAN libraries are available from
+#'[SCPACK: http://www.netlib.org/conformal/](http://www.netlib.org/conformal/).
+#'
+#'The particular set of functions provided by the `sccm` package are a minimum set
+#'of tools needed to map 2D data to a pre-defined support for regression models.
+#'The details and examples of the regression models are part of Peter DeWitt's
+#'Ph.D. dissertation.  More details on this can be found in the (soon to be
+#'released `cpr` package.
+#'
+#+label = "setup"
+set.seed(42)
+
+# Required packages to re-create the following examples
+library(sccm)
+
+#'
+#'# Data Sets
+#'There are two data sets provided in the `sccm` package.  These data sets are
+#'provided to help illustrate the conformal mappings.
+#'
+#'### `CircleLimitI`
+#'A circular drawing by M.C. Escher, has been provided as a `data.frame`.  See
+#'`?CircleLimitI` for more information.
+#+label = "circle_limit_data", fig.width = 4, fig.height = 4
+head(CircleLimitI)
+
+plot(CircleLimitI[, c("x", "y")],
+     asp = 1,
+     col = cut(CircleLimitI$value, breaks = 2),
+     pch = ".", cex = 3)
+
+#'
+#'### `HexagonalFish`
+#'Another M.C. Escher drawing, useful for showing the mapping between a polygon
+#'and the unit disk or another polygon. See `?HexagonalFish` for more details.
+#'
+#+ fig.width = 4, fig.height = 4
+plot(HexagonalFish[, c("x", "y")],
+     asp = 1,
+     col = cut(HexagonalFish$value, breaks = 2),
+     pch = ".", cex = 3)
+
+#'
+#'# Coordinate Translation
+#'There are two functions provided to make it easy to move between Cartesian and
+#'polar coordinates:
+#'
+#'1. `polar2cartesian(r, theta)` and
+#'2. `cartesian2polar(x, y)`.
+#'
+#'These function are based on the relationship
+#'$$(x, y) = (r \cos(\theta), r \sin(\theta)).$$
+#'
+#'Both functions expect that the inputs are numeric vectors of equal length or, if
+#'one input is length 1, it will be repeated to match the length of the other
+#'input.  Examples below
+#'
+
+# return the Cartesian coordinates of the point on the unit circle with and
+# angle of 2 pi/ 3
+cart <- polar2cartesian(r = 1, theta = 2 * pi / 3)
+cart
+all.equal(cart, matrix(c(-0.5, sqrt(3) / 2), nrow = 1)
+)
+
+# Return a disk of a given radius, or a radii of a
+disk3 <- polar2cartesian(r = 3, theta = seq(0, 2 * pi, length = 500L))
+disk4 <- polar2cartesian(r = 4, theta = seq(0, 2 * pi, length = 500L))
+radii <- polar2cartesian(r = seq(0, 4, length = 100L), theta = 0.75 * pi)
+
+plot(disk4, col = "black", asp = 1, xlab = "", ylab = "")
+points(disk3, col = "red")
+points(radii, col = "blue")
+
+#'
+#'`cartesian2polar` translates an $(x, y)$ Cartesian coordinates to $(r, \theta)$
+#'polar coordinates.
+#'
+cartesian2polar(-0.5, sqrt(3)/2)
+all.equal(cartesian2polar(-0.5, sqrt(3)/2),
+          matrix(c(1, 2 * pi / 3), nrow = 1))
+
+#'
+#'# Polygons and Convex Hulls
+#'The conformal mappings will require the use of polygons.  The functions
+#'`sccm::polygon` and `sccm::convex_hull` are provided to make defining the
+#'polygons easy.  The function `is_in` determines if a given point is either
+#'inside, on an edge, or outside of a given polygon.
+#'
+#'## `polygon`
+#'The expected input for `polygon` are two numeric vectors, or a `matrix`, or a
+#'`data.frame`.  Any R object that can be coerced into a two column `matrix` could
+#'be passed to `sccm::polygon`.
+#'
+#'For the set of vertices
+#'$\left\{ (1, -1), (1, 0), (2, 2), (3, -2) \right\}$ the polygon is defined
+#'via:
+pg <- polygon(x = c( 1, 1, 2,  3),
+              y = c(-1, 0, 2, -2))
+
+pg
+
+class(pg)
+
+str(pg)
+
+plot(pg)
+
+#'
+#'`pg` is a `sccm_pg` object.  This object returns the vertices entered, in order
+#'as entered, as a $n \times 2$ matrix.  The `beta` element are the exterior
+#'angles at each vertex.  These exterior angles are determine by the `atan2`
+#'function.
+#'`atan2(y, x)` is similar to `atan(y / x)` only that the former considers the
+#'sign of both $y$ and $x$ to determine the quadrant and return the angel from
+#'origin between 0 and $2\pi,$  whereas the later returns an angle between
+#'$-\pi/2$ and $\pi/2.$
+#'
+#'$$\beta_{j} = \text{atan2} \left( \overrightarrow{v_{j-1}v_{j}} \times \overrightarrow{v_{j}v_{j+1}}, \overrightarrow{v_{j-1}v_{j}} \cdot \overrightarrow{v_{j}v_{j+1}}\right)$$
+#'
+#'The cross product of the vectors by the dot product provides the needed inputs
+#'for determining the exterior angle of each vertex.
+#'
+#'It is important to note that `sccm::polygon` returns the vertices of the polygon
+#'in the same order as they inputted.  For the conformal mappings we will need the
+#'vertices to be entered in anti-clockwise order.  The user is expected to
+#'determine the correct sequence when constructing a polygon.
+#'
+#'To illustrate the ordering of the vertices we will construct a five pointed star
+#'polygon.
+#'
+star <-
+  rbind(polar2cartesian(1.0, seq(0, 1.6, by = 0.4) * pi),
+        polar2cartesian(0.5, seq(0.2, 1.8, by = 0.4) * pi))
+
+plot(polygon(star))
+
+#'
+#'Notice that the vertices on the unit disk are listed before the vertices on a
+#'disk of radius 0.5 and the plot reflex this.  While the plot is a polygon,
+#'albeit an irregular polygon, it does not look like a star, a regular concave
+#'polygon.  Next we will put the vertices in the correct order and generate a new
+#'plot.  This `star_pg` polygon will be used in several examples to follow.
+#'
+star <- star[rep(1:5, each = 2) + rep(c(0, 5), times = 5), ]
+star_pg <- polygon(star)
+plot(star_pg)
+
+#'
+#'## `convex_hull`
+#'A convex hull is the smallest convex envelop containing all the points of a set.
+#'The construction of these convex hulls is done via Andrew's Monotone Theorem, a
+#'$O(n log n)$ order algorithm.  A brute force approach for finding convex hulls
+#'can be $O(n^3).$
+#'
+#'The function `convex_hull` will accept a $n \times 2$ `matrix` or `data.frame`
+#'or two numeric vectors given the $(x, y)$ coordinates of the data.  The function
+#'will then return the vertices of the convex hull along with the exterior angles
+#'at each vertices and the row index of the original data for each of the
+#'vertices.  It is also worth noting that the origin data is returned within the
+#'`list` structure of `sccm_ch` objects.
+#'
+xvec = runif(150)
+yvec = 2 * xvec + rnorm(150)
+
+ch <- convex_hull(xvec, yvec)
+
+ch
+
+class(ch)
+
+str(ch)
+
+plot(ch)
+
+#'
+#'Using the `mtcars` data set, we can build a convex hull about the weight of
+#'vertices and the miles per gallon.
+#'
+plot(convex_hull(mtcars[, c("mpg", "wt")]))
+title(xlab = "MT Cars: MPG", ylab = "MT Cars: Weight")
+
+#'
+#'## `is_convex_hull`
+#'This function tests if a polygon is a convex hull or not.
+is_convex_hull(ch)
+is_convex_hull(polygon(c(-1, -1, 1, 1), c(-1, 1, 1, -1)))  # clockwise square
+is_convex_hull(polygon(c(-1, -1, 1, 1), c(1, -1, -1, 1)))  # anti-clockwise square
+is_convex_hull(star_pg)
+
+#'
+#'## `is_anticlockwise`
+#'This function tests if a polygon is a convex hull and if so, are the vertices
+#'listed in anti-clockwise order.  Note: by construction, `sccm_ch` objects have
+#'the vertices listed in anti-clockwise order.
+#'
+is_anticlockwise(ch)
+is_anticlockwise(polygon(c(-1, -1, 1, 1), c(-1, 1, 1, -1)))  # clockwise square
+is_anticlockwise(polygon(c(-1, -1, 1, 1), c(1, -1, -1, 1)))  # anti-clockwise square
+is_anticlockwise(star_pg)
+
+#'
+#'## `is_in`
+#'
+#'The `is_in` function tests if a point is located on the inside, edge, or
+#'outside of a polygon.  The implementation is based on the winding number
+#'algorithm.
+#'
+# a point on an edge
+xx <- 0.75
+yy <- (diff(star_pg$vertices[1:2, 2]) / diff(star_pg$vertices[1:2, 1])) * (xx - star_pg$vertices[1, 1]) + star_pg$vertices[1, 2]
+
+is_in(-0.4, 0.1, star_pg) # inside
+is_in(0.5, -0.6, star_pg) # outside
+is_in(xx, yy, star_pg)    # on an edge
+
+# send a set of points to is_in
+xcoords <- c(-0.4, 0.5, xx)
+ycoords <- c(0.1, -0.6, yy)
+is_in(xcoords, ycoords, star_pg)
+summary(is_in(xcoords, ycoords, star_pg))
+
+plot(star_pg, asp = 1)
+points(-0.4, 0.1, pch = 16, col = "black") # inside
+points(0.5, -0.6, pch = 16, col = "blue")  # outside
+points(xx, yy,    pch = 16, col = "red")   # on an edge
+
+#'
+#'## `rotate`
+#'Function rotates the vertices of a polygon/hull...
+#'
+#'# Schwarz-Christoffel Conformal Mappings
+#'
+#'The Schwarz-Christoffel conformal mapping (SCCM) from the unit disk to a polygon
+#'are used by three functions:
+#'
+#'1. `d2p` for disk to polygon,
+#'2. `p2d` for polygon to disk (an inverse mapping), and
+#'3. `p2p` form one polygon to another via an (inverse) mapping from a polygon to
+#'   the unit disk and a mapping from the disk to the other polygon.
+#'
+#'Good references for mathemtatics and the FORTRAN program can be found at:
+#'
+#'* Trefethen, Lloyd N. "Numerical computation of the Schwarz-Christoffel transformation." SIAM Journal on Scientific and Statistical Computing 1.1 (1980): 82-102.
+#'
+#'* Trefethen, Lloyd N. "Analysis and design of polygonal resistors by conformal mapping." Zeitschrift für angewandte Mathematik und Physik ZAMP 35.5 (1984): 692-704.
+#'
+#'* [SCPACK](http://www.netlib.org/conformal/)
+#'
+#'
+#'## Disk to Polygon
+#'
+#'Evaluation of the forward map $w(z)$ for the point $z$ in the unit disk or on
+#'the circumference thereof, requires the computation of the integral
+#'
+#'$$w = w(z_0) + C \int\limits_{z_0}^{z} \prod\limits_{j=1}^{N} \left( 1 - \frac{\zeta}{z_j} \right)^{-\beta_j} \mathrm{d}\zeta.$$
+#'
+#'The endpoint $z_0$ may be any point in the closed disk where $w(z_0)$ is known
+#'and finite.  Additional detain is in Trefethen (1980).
+#'
+#'The function `d2p` provides the mapping of `.data` from the unit disk to a given
+#'polygon, `pg`.  By default, the function will map the unit disk to a square with
+#'vertices at (-1, 1), (1, -1), (1, 1), and (-1, 1).
+#'
+args(d2p)
+
+#'
+#'To illustrate this mapping we'll use the `CircleLimitI` data set.
+#'
+#'The mapping object will contain the `mapped` data, the `polygon` the data was
+#'mapped into, the original `data` provided
+#'
+#+eval = FALSE
+circle_to_square <- d2p(CircleLimitI[, c("x", "y")])
+str(circle_to_square, max.level = 1L)
+
+#'
+#'Plotting the results is simple:
+#+eval = FALSE, fig.width = 9, fig.height = 6
+plot(circle_to_square,
+     col = cut(CircleLimitI$value, breaks = 2),
+     pch = ".", cex = 3)
+
+#'
+#'Mapping to any simple polygon is possible:
+#+eval = FALSE, fig.width = 9, fig.height = 6
+plot(d2p(CircleLimitI[, c("x", "y")], pg = star_pg),
+     col = cut(CircleLimitI$value, breaks = 2),
+     pch = ".", cex = 3)
+
+#'
+#'Mapping the unit disk to the square and star shapes viewed with color disks:
+#+eval = FALSE, fig.width = 9, fig.height = 6
+color_disk <-
+  Reduce(rbind,
+    c(
+      mapply(function(r, theta) {cbind(sccm::polar2cartesian(r, theta), r)},
+           r = seq(0.1, 0.9, by = 0.1),
+           MoreArgs = list(theta = seq(0, 2 * pi, length = 100L)),
+           SIMPLIFY = FALSE),
+      mapply(function(r, theta) {cbind(sccm::polar2cartesian(r, theta), r)},
+             theta = seq(0, 2, by = 0.25) * pi,
+             MoreArgs = list(r = seq(0, 0.99, length = 20L)),
+             SIMPLIFY = FALSE)
+      ))
+
+color_disk_squared <- sccm::d2p(color_disk[, 1:2])
+color_disk_stared  <- sccm::d2p(color_disk[, 1:2],
+                                pg = sccm::polygon(star))
+
+plot(color_disk_squared, col = cut(color_disk[, 3], breaks = 6), pch = ".", cex = 3)
+plot(color_disk_stared,  col = cut(color_disk[, 3], breaks = 6), pch = ".", cex = 3)
+
+#'
+#'## Polygon to Disk
+#'An inverse mapping taking two arguments, `.data` to map and the polygon
+#'containing the `.data.`
+#+eval = FALSE, fig.width = 6, fig.height = 4
+plot(p2d(HexagonalFish[, c("x", "y")]),
+     col = cut(HexagonalFish$value, breaks = 2),
+     pch = ".", cex = 3)
+
+#'
+#'## Polygon to Polygon
+#'To map `.data` within polygon `pg1` to another polygon `pg2` use the function
+#'`p2p`.  Default settings will map `.data` within its convex hull to the square
+#'with vertices at (-1, 1), (1, -1), (1, 1), and (-1, 1).
+args(p2p)
+
+#'
+#'Some examples:
+#+eval = FALSE, fig.width = 9, fig.height = 6
+square_fish <- p2p(HexagonalFish[, 1:2])
+plot(square_fish, col = cut(HexagonalFish[, 3], breaks = 2))
+
+#'
+#+eval = FALSE, fig.width = 9, fig.height = 6
+star_fish <- p2p(HexagonalFish[, 1:2], pg2 = star_pg)
+plot(star_fish, col = cut(HexagonalFish[, 3], breaks = 2))
+

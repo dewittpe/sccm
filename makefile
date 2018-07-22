@@ -21,6 +21,8 @@ all: $(PKG_NAME)_$(PKG_VERSION).tar.gz
 	echo "options(repo = c('$(CRAN)', '$(BIOC)'))" > .document.R
 	echo "devtools::install_dev_deps()" >> .document.R
 	echo "devtools::document('$(PKG_ROOT)')" >> .document.R
+	echo "tools::package_native_routine_registration_skeleton('.', con = 'src/init.c')" >> .document.R
+	echo "Rcpp::compileAttributes()" >> .document.R
 	Rscript --vanilla --quiet .document.R 2>&1 | tee .document.Rout
 	/bin/rm .document.R
 	if [ -e "$(PKG_ROOT)/vignettes/makefile" ]; then $(MAKE) -C $(PKG_ROOT)/vignettes/; fi

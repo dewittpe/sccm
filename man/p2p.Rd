@@ -4,8 +4,12 @@
 \alias{p2p}
 \title{Polygon to Polygon}
 \usage{
-p2p(.data, pg1 = sccm::convex_hull(.data), pg2 = sccm::polygon(x = c(-1, 1,
-  1, -1), y = c(-1, -1, 1, 1)), ...)
+p2p(
+  .data,
+  pg1 = sccm::convex_hull(.data),
+  pg2 = sccm::polygon(x = c(-1, 1, 1, -1), y = c(-1, -1, 1, 1)),
+  ...
+)
 }
 \arguments{
 \item{.data}{the data set to map}

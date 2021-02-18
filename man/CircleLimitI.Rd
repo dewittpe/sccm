@@ -4,14 +4,16 @@
 \name{CircleLimitI}
 \alias{CircleLimitI}
 \title{Circle Limit I by Mc Esher}
-\format{A data frame
+\format{
+A data frame
 \describe{
   \item{pixel_x}{x coordinate}
   \item{pixel_y}{y coordinate}
   \item{value}{shading value}
   \item{x}{x coordinate scaled for the unit disk}
   \item{y}{y coordinate scaled for the unit disk}
-}}
+}
+}
 \source{
 \url{http://uploads4.wikiart.org/images/m-c-escher/circle-limit-i.jpg!PinterestSmall.jpg}
 }

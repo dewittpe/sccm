@@ -13,11 +13,11 @@ extern void p2d_(void *, void *, void *, void *, void *, void *, void *, void *,
 extern void scmap_(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
 
 /* .Call calls */
-extern SEXP _sccm_cartesian2polar(SEXP, SEXP);
-extern SEXP _sccm_convex_hull_cpp(SEXP, SEXP);
-extern SEXP _sccm_is_in_cpp(SEXP, SEXP, SEXP);
-extern SEXP _sccm_polar2cartesian(SEXP, SEXP);
-extern SEXP _sccm_polygon_cpp(SEXP, SEXP);
+extern SEXP _sccm_cartesian2polar(void *, void *);
+extern SEXP _sccm_convex_hull_cpp(void *, void *);
+extern SEXP _sccm_is_in_cpp(void *, void *, void *);
+extern SEXP _sccm_polar2cartesian(void *, void *);
+extern SEXP _sccm_polygon_cpp(void *, void *);
 
 static const R_CMethodDef CEntries[] = {
     {"d2p_",   (DL_FUNC) &d2p_,   11},
